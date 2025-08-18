@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация | JF{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+        <style>
+            .auth-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: calc(100vh - 200px);
+                padding: 2rem 0;
+            }
+
+            .auth-card {
+                background: var(--card-bg);
+                border-radius: 16px;
+                padding: 3rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                width: 100%;
+                max-width: 500px;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .auth-title {
+                font-size: 2.2rem;
+                margin-bottom: 1.5rem;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .auth-subtitle {
+                color: var(--text-secondary);
+                margin-bottom: 2rem;
+                font-size: 1.1rem;
+            }
+
+            .input-group {
+                margin-bottom: 1.5rem;
+                text-align: left;
+            }
+
+            .input-label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: var(--text);
+            }
+
+            .auth-input {
+                width: 100%;
+                padding: 15px;
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                background: rgba(22, 32, 47, 0.6);
+                border-radius: 12px;
+                color: var(--text);
+                font-size: 1rem;
+                transition: all 0.3s;
+            }
+
+            .auth-input:focus {
+                outline: none;
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 3px rgba(28, 100, 242, 0.2);
+            }
+
+            .password-container {
+                position: relative;
+            }
+
+            .toggle-password {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                color: var(--text-secondary);
+                font-size: 1.2rem;
+                user-select: none;
+                transition: color 0.3s;
+            }
+
+            .toggle-password:hover {
+                color: var(--accent);
+            }
+
+            .auth-btn {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+                color: white;
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 1.1rem;
+                width: 100%;
+                margin-top: 1rem;
+                box-shadow: 0 4px 6px rgba(233, 77, 28, 0.2);
+            }
+
+            .auth-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(233, 77, 28, 0.3);
+            }
+
+            .auth-btn:active {
+                transform: translateY(0);
+            }
+
+            .auth-links {
+                margin-top: 1.5rem;
+                text-align: center;
+            }
+
+            .auth-link {
+                color: var(--accent);
+                text-decoration: none;
+                transition: all 0.3s;
+            }
+
+            .auth-link:hover {
+                color: var(--primary);
+                text-decoration: underline;
+            }
+
+            .error-message {
+                color: var(--error);
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+                text-align: left;
+                display: block;
+            }
+
+            @media (max-width: 768px) {
+                .auth-card {
+                    padding: 2rem;
+                }
+                
+                .auth-title {
+                    font-size: 1.8rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .auth-card {
+                    padding: 1.5rem;
+                }
+                
+                .auth-title {
+                    font-size: 1.6rem;
+                }
+            }
+        </style>
+{% endblock %}
+
+{% block content %}
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">Создать аккаунт</h1>
+            <p class="auth-subtitle">Присоединяйтесь к JF и получите доступ ко всем возможностям</p>
+            
+            <form id="registerForm" method="post">
+                <div class="input-group">
+                    <label for="username" class="input-label">Имя пользователя</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="auth-input" 
+                        placeholder="Введите ваше имя"
+                        required
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label for="email" class="input-label">Электронная почта</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="auth-input" 
+                        placeholder="email@example.com"
+                        required
+                    >
+                </div>
+                
+                <div class="input-group">
+                    <label for="password" class="input-label">Пароль</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="auth-input" 
+                            placeholder="Создайте надежный пароль"
+                            required
+                        >
+                        <span class="toggle-password" id="togglePassword">👁️</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="auth-btn pulse">Зарегистрироваться</button>
+                
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="auth-links">
+                    <p>Уже есть аккаунт? <a href="/jwt/login/" class="auth-link">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+            this.textContent = type === 'password' ? '👁️' : '🔒';
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+        
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get('username'),
+                email: formData.get('email'), 
+                password: formData.get('password')
+            };
+        
+            try {
+                const response = await fetch('/jwt/register', {
+                method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(data), 
+                });
+        
+                if (response.ok) {
+                    window.location.href = '/jwt/login/';
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('errorMessage').textContent = errorData.detail || 'Ошибка при регистрации';
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
+            }
+        });
+    });
+</script>

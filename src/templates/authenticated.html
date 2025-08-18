@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет | SLink{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+        }
+
+        .user-card {
+            text-align: center;
+            padding: 1rem 0 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .sidebar-links {
+            list-style: none;
+        }
+
+        .sidebar-link {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .sidebar-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            font-weight: 500;
+        }
+
+        .sidebar-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .welcome-message {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(31, 41, 55, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .recent-links {
+            margin-top: 2rem;
+        }
+
+        .links-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .links-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        .links-null {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        .links-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .links-table th {
+            text-align: left;
+            padding: 1rem;
+            background: rgba(31, 41, 55, 0.7);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .links-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .link-short {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: none;
+            color: var(--primary);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(31, 41, 55, 0.5);
+            color: var(--text);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: none;
+            color: var(--primary);
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--text);
+            font-size: 0.9rem;
+            margin: 0 10px;
+        }
+
+        #allLinksModal .modal-content {
+            max-width: 900px;
+            width: 90%;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+        
+        .modal-links-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .modal-links-table th {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+            padding: 1rem;
+            text-align: left;
+            background: rgba(31, 41, 55, 0.7);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .modal-links-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .no-links-message {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .links-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="user-card">
+                <div class="user-avatar">
+                    {{ current_user.username|first|upper }}
+                </div>
+                <div class="user-name">{{ current_user.username }}</div>
+                <div class="user-email">{{ current_user.email }}</div>
+            </div>
+            
+            <ul class="sidebar-links">
+                <li class="sidebar-link" onclick="openAllLinksModal()">
+                    <i>📋</i> Все ссылки
+                </li>
+                <li class="sidebar-link" onclick="logout()">
+                    <i>🚪</i> Выйти
+                </li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="section-header">
+                <h2 class="section-title">Обзор активности</h2>
+            </div>
+            
+            <p class="welcome-message">
+                Добро пожаловать, {{ current_user.username }}! Здесь вы можете управлять своими ссылками,
+                просматривать статистику переходов и настраивать ваш аккаунт.
+            </p>
+            
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value">{{ links_count }}</div>
+                    <div class="stat-label">Всего ссылок</div>
+                </div>
+            </div>
+            
+            <div class="recent-links">
+                <div class="links-header">
+                    <h3 class="links-title">Недавние ссылки</h3>
+                    <button class="btn" id="createLinkBtn">Создать новую</button>
+                </div>
+                
+                <table class="links-table">
+                    <thead>
+                        <tr>
+                            <th>Оригинальная ссылка</th>
+                            <th>Сокращенная</th>
+                            <th>Дата создания</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="links-container">
+                        {% if links %}
+                            {% for link in links %}
+                            <tr class="link-row" data-short-link="{{ link.short_link }}">
+                                <td>{{ link.long_link }}</td>
+                                <td><a href="{{ link.short_link }}" class="link-short" target="_blank">{{ link.short_link }}</a></td>
+                                <td>{{ link.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td class="link-actions">
+                                    <button class="action-btn delete-btn" data-short-link="{{ link.short_link }}">🗑️</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="links-null">У вас нет ссылок.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                {% if links %}
+                    <div class="pagination" id="pagination-container">
+                        <button class="pagination-btn" id="prev-btn">←</button>
+                        <span class="pagination-info" id="page-info">Страница 1 из 0</span>
+                        <button class="pagination-btn" id="next-btn">→</button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="createLinkModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Создать короткую ссылку</h2>
+            <div class="form-group">
+                <label for="long_url">Длинная ссылка:</label>
+                <input type="url" id="long_url" name="long_url" placeholder="https://example.com" required>
+            </div>
+            <button id="submitCreateLink" class="btn">Создать</button>
+        </div>
+    </div>
+
+    <div id="allLinksModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllLinksModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Все ваши ссылки</h2>
+            </div>
+            <div class="modal-body" id="allLinksContainer">
+                {% if links %}
+                    <table class="modal-links-table">
+                        <thead>
+                            <tr>
+                                <th>Оригинальная ссылка</th>
+                                <th>Сокращенная</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for link in links %}
+                            <tr>
+                                <td>{{ link.long_link }}</td>
+                                <td><a href="{{ link.short_link }}" class="link-short" target="_blank">{{ link.short_link }}</a></td>
+                                <td>{{ link.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td class="link-actions">
+                                    <button class="action-btn delete-btn" data-short-link="{{ link.short_link }}">🗑️</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-links-message">У вас нет ссылок.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        function decodeJWT(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = JSON.parse(atob(base64));
+                return jsonPayload;
+            } catch (e) {
+                console.error('ошибка декодирования токена:', e);
+                return null;
+            }
+        }
+
+        async function refreshToken() {
+            try {
+                console.log("попытка обновления токена...");
+                
+                const response = await fetch('/jwt/refresh/', {
+                    method: 'POST',
+                    credentials: 'include', 
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const newAccessToken = data.access_token;
+
+                    console.log("токен успешно обновлен:", newAccessToken);
+
+                    document.cookie = `access_token=${newAccessToken}; path=/; samesite=Lax; secure=false;`;
+                    console.log("куки обновлены:");
+
+                    startTokenRefreshTimer(newAccessToken);
+                } else {
+                    console.error('ошибка при обновлении токена:', response.status);
+                    handleTokenExpiration();
+                }
+            } catch (error) {
+                console.error('ошибка при попытке обновления токена:', error);
+                handleTokenExpiration();
+            }
+        }
+
+        function startTokenRefreshTimer(accessToken) {
+            const payload = decodeJWT(accessToken);
+            if (!payload || !payload.exp) {
+                console.warn("ошибка получения времени истечения токена");
+                handleTokenExpiration();
+                return;
+            }
+
+            const exp = payload.exp * 1000;
+            const currentTime = Date.now();
+            const delay = exp - currentTime - 30000;
+
+            if (delay > 0) {
+                console.log(`обновление токена запланировано через ${delay / 1000} секунд`);
+                setTimeout(refreshToken, delay);
+            } else {
+                console.warn('токен истёк, требуется авторизация');
+                handleTokenExpiration();
+            }
+        }
+
+        function isTokenExpired(token) {
+            const payload = decodeJWT(token);
+            if (!payload || !payload.exp) return true;
+            const exp = payload.exp * 1000;
+            return Date.now() >= exp;
+        }
+
+        const accessToken = getCookie("access_token");
+        if (accessToken) {
+            if (isTokenExpired(accessToken)) {
+                refreshToken();
+            } else {
+                startTokenRefreshTimer(accessToken);
+            }
+        } else {
+            console.error("Токен отсутствует, требуется авторизация.");
+        }
+
+        function handleTokenExpiration() {
+            alert('Сессия истекла. Выполните вход заново.');
+            logout();
+        }
+
+        async function logout() {
+            try {
+                const response = await fetch('/jwt/logout', {
+                    method: 'POST', 
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    window.location.href = '/'; 
+                } else {
+                    console.error('Ошибка при выходе');
+                }
+            } catch (error) {
+                console.error('Ошибка при выходе:', error);
+            }
+        }
+
+        const modal = document.getElementById("createLinkModal");
+        const createBtn = document.getElementById("createLinkBtn");
+        const closeBtn = document.getElementsByClassName("close")[0];
+        const submitBtn = document.getElementById("submitCreateLink");
+
+        createBtn.onclick = function() {
+            document.getElementById("long_url").value = "";
+            modal.style.display = "block";
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        submitBtn.onclick = async function() {
+            const longUrlInput = document.getElementById("long_url");
+            const longUrl = longUrlInput.value.trim();
+
+            if (!longUrl) {
+                alert("Пожалуйста, введите ссылку");
+                return;
+            }
+
+            try {
+                new URL(longUrl);
+            } catch {
+                alert("Пожалуйста, введите корректный URL");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Создание...";
+
+            try {
+                const response = await fetch('/auth_create_short_link', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `long_link=${encodeURIComponent(longUrl)}`,
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const shortLink = await response.text();
+
+                    modal.style.display = "none";
+
+                    alert(`Ссылка успешно создана: ${shortLink}`);
+
+                    location.reload();
+                } else {
+                    const error = await response.text();
+                    alert(`Ошибка: ${error}`);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при создании ссылки');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Создать";
+            }
+        };
+
+        document.getElementById("long_url").addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitBtn.click();
+            }
+        });
+
+        function openAllLinksModal() {
+            const modal = document.getElementById("allLinksModal");
+            modal.style.display = "block";
+        }
+        
+        function closeAllLinksModal() {
+            document.getElementById("allLinksModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const allLinksModal = document.getElementById("allLinksModal");
+            if (event.target == allLinksModal) {
+                closeAllLinksModal();
+            }
+            
+            const createLinkModal = document.getElementById("createLinkModal");
+            if (event.target == createLinkModal) {
+                createLinkModal.style.display = "none";
+            }
+        };
+
+        function checkEmptyStates() {
+            const mainRows = document.querySelectorAll('#links-container .link-row');
+            if (mainRows.length === 0) {
+                document.getElementById('links-container').innerHTML = `
+                    <tr>
+                        <td colspan="4" class="links-null">У вас нет ссылок.</td>
+                    </tr>
+                `;
+                document.getElementById('pagination-container')?.remove();
+            }
+            const modalRows = document.querySelectorAll('#allLinksContainer tbody tr');
+            if (modalRows.length === 0) {
+                document.getElementById('allLinksContainer').innerHTML = '<div class="no-links-message">У вас пока нет ссылок</div>';
+            }
+        }
+
+        document.addEventListener('click', async function(event) {
+            if (event.target.classList.contains('delete-btn')) {
+                const button = event.target;
+                const shortLink = button.dataset.shortLink;
+                
+                if (!confirm('Вы уверены, что хотите удалить эту ссылку?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/delete_short_link?short_link=${encodeURIComponent(shortLink)}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        const row = button.closest('.link-row');
+                        row.remove();
+
+                        const statValue = document.querySelector('.stat-value');
+                        statValue.textContent = parseInt(statValue.textContent) - 1;
+
+                        const remainingLinks = document.querySelectorAll('.link-row').length;
+                        if (remainingLinks === 0) {
+                            document.getElementById('links-container').innerHTML = `
+                                <tr>
+                                    <td colspan="4" class="links-null">У вас нет ссылок.</td>
+                                </tr>
+                            `;
+                            document.getElementById('pagination-container')?.remove();
+                        }
+                        
+                        alert('Ссылка успешно удалена');
+                    } else {
+                        const error = await response.text();
+                        alert(`Ошибка: ${error}`);
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении:', error);
+                    alert('Произошла ошибка при удалении ссылки');
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('#links-container tr:not(.links-null)');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pageInfo = document.getElementById('page-info');
+            const linksPerPage = 3;
+            
+            if (rows.length > 0) {
+                let currentPage = 1;
+                const totalPages = Math.ceil(rows.length / linksPerPage);
+
+                function initPagination() {
+                    updatePageInfo();
+                    showPage(currentPage);
+                    updateButtonStates();
+                }
+
+                function showPage(page) {
+                    rows.forEach(row => row.style.display = 'none');
+
+                    const startIndex = (page - 1) * linksPerPage;
+                    const endIndex = Math.min(startIndex + linksPerPage, rows.length);
+                    
+                    for (let i = startIndex; i < endIndex; i++) {
+                        rows[i].style.display = '';
+                    }
+                }
+
+                function updatePageInfo() {
+                    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
+                }
+
+                function updateButtonStates() {
+                    prevBtn.disabled = currentPage === 1;
+                    nextBtn.disabled = currentPage === totalPages;
+                }
+
+                prevBtn.addEventListener('click', function() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                        updatePageInfo();
+                        updateButtonStates();
+                    }
+                });
+                
+                nextBtn.addEventListener('click', function() {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        showPage(currentPage);
+                        updatePageInfo();
+                        updateButtonStates();
+                    }
+                });
+
+                initPagination();
+            }
+        });
+    </script>
+{% endblock %}

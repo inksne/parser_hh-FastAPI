@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}О нас | JF{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style>
+        .about-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .about-title {
+            font-size: 2.8rem;
+            margin-bottom: 1.2rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .about-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .about-content {
+            margin-bottom: 3rem;
+        }
+
+        .about-content h2 {
+            font-size: 1.9rem;
+            margin: 2rem 0 1.2rem;
+            color: var(--accent);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .about-content h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .about-content p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            padding-left: 1.5rem;
+            border-left: 2px solid rgba(255, 154, 60, 0.2);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0 2rem;
+            padding-left: 1.5rem;
+        }
+
+        .feature-list li {
+            margin-bottom: 1.2rem;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .contact-info {
+            background: rgba(233, 77, 28, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .contact-title {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-align: center;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .contact-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(22, 32, 47, 0.6);
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+
+        .contact-item:hover {
+            transform: translateX(5px);
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(233, 77, 28, 0.2), rgba(255, 154, 60, 0.2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .contact-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
+        }
+
+        .contact-text {
+            flex: 1;
+        }
+
+        .contact-text p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .contact-text a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .contact-text a:hover {
+            text-decoration: underline;
+            transform: translateY(-2px);
+        }
+
+        .team-section {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .team-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--accent);
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-member {
+            background: rgba(22, 32, 47, 0.7);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(233, 77, 28, 0.2);
+            border-color: rgba(233, 77, 28, 0.3);
+        }
+
+        .member-photo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .member-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .member-role {
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .member-bio {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .about-section {
+                padding: 2rem;
+            }
+            
+            .about-title {
+                font-size: 2.2rem;
+            }
+            
+            .about-subtitle {
+                font-size: 1.15rem;
+            }
+            
+            .contact-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .contact-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .about-section {
+                padding: 1.5rem;
+            }
+            
+            .about-title {
+                font-size: 1.9rem;
+            }
+            
+            .about-content h2 {
+                font-size: 1.6rem;
+            }
+            
+            .member-photo {
+                width: 110px;
+                height: 110px;
+                font-size: 2.8rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <section class="about-section">
+        <div class="about-header">
+            <h1 class="about-title">О проекте JobFinder</h1>
+            <p class="about-subtitle">Мы создали сервис, который помогает соискателям находить идеальные вакансии, используя возможности искусственного интеллекта и глубокий анализ рынка труда</p>
+        </div>
+        
+        <div class="about-content">
+            <h2>Наша миссия</h2>
+            <p>В современном мире поиск работы превратился в сложный и отнимающий много времени процесс. Наша цель - упростить этот процесс, предоставляя умные инструменты для анализа вакансий. Мы верим, что каждый заслуживает найти работу, которая соответствует не только профессиональным навыкам, но и личным амбициям и ценностям.</p>
+            
+            <h2>Как это работает</h2>
+            <p>JobFinder использует передовые технологии парсинга и анализа данных для обработки тысяч вакансий с HH.ru. Наши алгоритмы оценивают не только ключевые слова, но и контекст, требования работодателей и тенденции рынка. Сервис автоматически фильтрует предложения, выделяя наиболее релевантные для каждого пользователя на основе его уникального профиля и предпочтений.</p>
+            
+            <h2>Преимущества JobFinder</h2>
+            
+            <ul class="feature-list">
+                <li>
+                    <strong>Интеллектуальная фильтрация</strong> - Наш ИИ анализирует не только навыки, но и корпоративную культуру, перспективы роста и баланс работы/жизни
+                </li>
+                <li>
+                    <strong>Персонализированные рекомендации</strong> - Система обучается на ваших действиях и с каждым поиском предлагает более точные варианты
+                </li>
+                <li>
+                    <strong>Анализ зарплатных трендов</strong> - Мы показываем реальный уровень оплаты для вашей специализации с учетом опыта и региона
+                </li>
+                <li>
+                    <strong>Экономия времени</strong> - Автоматизация рутинного поиска позволяет сосредоточиться на подготовке к собеседованиям
+                </li>
+                <li>
+                    <strong>Конфиденциальность данных</strong> - Ваша личная информация и история поиска надежно защищены
+                </li>
+            </ul>
+            
+            <div class="contact-info">
+                <h3 class="contact-title">Контакты</h3>
+                
+                <div class="contact-item">
+                    <div class="contact-text">
+                        <p>Email: <a href="mailto:inksne@gmail.com">inksne@gmail.com</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-text">
+                        <p>GitHub: <a href="https://github.com/inksne">https://github.com/inksne</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-text">
+                        <p>GitLab: <a href="https://gitlab.com/inksne">https://gitlab.com/inksne</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="team-section">
+            <h2 class="team-title">Команда разработки</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-photo">I</div>
+                    <h3 class="member-name">inksne</h3>
+                    <p class="member-role">Основатель & Разработчик</p>
+                    <p>Создатель сервиса, backend разработчик</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
