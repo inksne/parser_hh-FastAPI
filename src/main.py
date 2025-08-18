@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from database.database import create_db_and_tables
 
 from auth import router as auth_router
+from templates import router as templates_router
 
 
 @asynccontextmanager
@@ -26,3 +27,4 @@ app.add_middleware(
 
 
 app.include_router(auth_router)
+app.include_router(templates_router)
