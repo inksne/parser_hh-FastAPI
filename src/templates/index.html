@@ -67,31 +67,6 @@
             fill: var(--accent);
         }
 
-        .copy-btn {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--text-secondary);
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .copy-btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
         .loading {
             display: none;
             text-align: center;
@@ -110,10 +85,6 @@
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
             vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .features {
@@ -167,6 +138,153 @@
             font-size: 0.95rem;
         }
 
+        /* Новые стили для формы поиска */
+        .vacancy-input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .vacancy-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(22, 32, 47, 0.6);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .vacancy-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(28, 100, 242, 0.2);
+        }
+
+        .filter-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .filter-btn:hover {
+            color: var(--accent);
+        }
+
+        .filter-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Панель фильтров */
+        .filters-panel {
+            background: rgba(22, 32, 47, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .filters-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(22, 32, 47, 0.6);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .filter-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-checkbox input {
+            margin: 0;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .apply-btn, .reset-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+        }
+
+        .reset-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .reset-btn:hover {
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -179,6 +297,10 @@
             .features {
                 grid-template-columns: 1fr;
                 max-width: 500px;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -206,9 +328,97 @@
     
     <div class="search-box">
         <div class="form-group">
-            <label for="search-url" class="form-label">Введите URL страницы с вакансиями HH.ru</label>
+            <label for="vacancy-name" class="form-label">Введите название вакансии</label>
+            <div class="vacancy-input-group">
+                <input 
+                    type="text" 
+                    id="vacancy-name" 
+                    class="vacancy-input" 
+                    placeholder="Например: Middle Python Developer"
+                >
+                <button class="filter-btn" id="filter-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 13H18V11H6V13ZM3 6V8H21V6H3ZM9 18H15V16H9V18Z"/>
+                    </svg>
+                    Фильтры
+                </button>
+            </div>
+
+            <div class="filters-panel" id="filters-panel">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Регион</label>
+                        <input type="text" class="filter-input" placeholder="Москва, Санкт-Петербург...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Опыт работы</label>
+                        <select class="filter-select">
+                            <option value="">Не имеет значения</option>
+                            <option value="noExperience">Нет опыта</option>
+                            <option value="between1And3">От 1 года до 3 лет</option>
+                            <option value="between3And6">От 3 до 6 лет</option>
+                            <option value="moreThan6">Более 6 лет</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Зарплата</label>
+                        <input type="number" class="filter-input" placeholder="Желаемая зарплата">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Тип занятости</label>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="employment" value="full">
+                                Полная
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="employment" value="part">
+                                Частичная
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="employment" value="project">
+                                Проект
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="employment" value="intern">
+                                Стажировка
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">График работы</label>
+                        <div class="filter-checkbox-group">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="schedule" value="fullDay">
+                                Полный день
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="schedule" value="shift">
+                                Сменный
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="schedule" value="flexible">
+                                Гибкий
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" name="schedule" value="remote">
+                                Удалёнка
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="reset-btn" id="reset-filters">Сбросить</button>
+                    <button class="apply-btn" id="apply-filters">Применить</button>
+                </div>
+            </div>
+            
             <div class="input-group">
-                <input type="text" id="search-url" class="url-input" placeholder="https://hh.ru/search/vacancy?text=python">
                 <button class="btn pulse" id="search-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -275,33 +485,68 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchBtn = document.getElementById('search-btn');
+            const filterBtn = document.getElementById('filter-btn');
+            const filtersPanel = document.getElementById('filters-panel');
+            const applyFiltersBtn = document.getElementById('apply-filters');
+            const resetFiltersBtn = document.getElementById('reset-filters');
             const resultBox = document.getElementById('result-box');
             const loading = document.getElementById('loading');
-            
+
+            if (filterBtn && filtersPanel) {
+                filterBtn.addEventListener('click', function() {
+                    filtersPanel.classList.toggle('active');
+                });
+            }
+
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    filtersPanel.classList.remove('active');
+                });
+            }
+
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-input, .filter-select').forEach(el => {
+                        if (el.tagName === 'INPUT') {
+                            el.value = '';
+                        } else if (el.tagName === 'SELECT') {
+                            el.selectedIndex = 0;
+                        }
+                    });
+
+                    document.querySelectorAll('.filter-checkbox input').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                });
+            }
+
             if (searchBtn) {
                 searchBtn.addEventListener('click', function() {
-                    const urlInput = document.getElementById('search-url');
+                    const vacancyName = document.getElementById('vacancy-name').value.trim();
                     
-                    if (!urlInput.value.trim()) {
-                        alert('Пожалуйста, введите URL страницы с вакансиями');
+                    if (!vacancyName) {
+                        alert('Пожалуйста, введите название вакансии');
                         return;
                     }
                     
-                    if (!isValidUrl(urlInput.value)) {
-                        alert('Пожалуйста, введите корректный URL');
-                        return;
-                    }
-
                     loading.style.display = 'block';
+                    resultBox.style.display = 'none';
 
                     setTimeout(function() {
                         loading.style.display = 'none';
                         resultBox.style.display = 'block';
-
                         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }, 2000);
                 });
             }
+
+            document.addEventListener('click', function(event) {
+                if (filtersPanel.classList.contains('active') && 
+                    !filterBtn.contains(event.target) && 
+                    !filtersPanel.contains(event.target)) {
+                    filtersPanel.classList.remove('active');
+                }
+            });
         });
     </script>
 {% endblock %}

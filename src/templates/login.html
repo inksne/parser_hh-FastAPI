@@ -238,47 +238,47 @@
             </form>
         </div>
     </div>
-{% endblock %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordField = document.getElementById('password');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function() {
-            const type = passwordField.type === 'password' ? 'text' : 'password';
-            passwordField.type = type;
-            this.textContent = type === 'password' ? '👁️' : '🔒';
-        });
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.type === 'password' ? 'text' : 'password';
+                passwordField.type = type;
+                this.textContent = type === 'password' ? '👁️' : '🔒';
+            });
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); 
-        
-            const formData = new FormData(e.target);
-            const data = {
-                username: formData.get('username'),
-                password: formData.get('password'),
-            };
-        
-            try {
-                const response = await fetch('/jwt/login/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams(data), 
-                    credentials: 'include'
-                });
-        
-                if (response.ok) {
-                    window.location.href = '/authenticated/';
-                } else {
-                    const errorData = await response.json();
-                    document.getElementById('errorMessage').textContent = errorData.detail || 'Неверные учетные данные';
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault(); 
+            
+                const formData = new FormData(e.target);
+                const data = {
+                    username: formData.get('username'),
+                    password: formData.get('password'),
+                };
+            
+                try {
+                    const response = await fetch('/jwt/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams(data), 
+                        credentials: 'include'
+                    });
+            
+                    if (response.ok) {
+                        window.location.href = '/authenticated/';
+                    } else {
+                        const errorData = await response.json();
+                        document.getElementById('errorMessage').textContent = errorData.detail || 'Неверные учетные данные';
+                    }
+                } catch (error) {
+                    document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
                 }
-            } catch (error) {
-                document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
-            }
+            });
         });
-    });
-</script>
+    </script>
+{% endblock %}
