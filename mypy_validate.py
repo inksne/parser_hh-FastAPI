@@ -9,12 +9,14 @@ complete_count = time_count = 0
 def run_mypy_checks():
     files = [
         ("auth.py", "src/auth/auth.py"),
-        ("helpers.py", "src/auth/helpers.py"),
+        ("auth/helpers.py", "src/auth/helpers.py"),
         ("schemas.py", "src/auth/schemas.py"),
         ("utils.py", "src/auth/utils.py"),
         ("validation.py", "src/auth/validation.py"),
         ("managers.py", "src/database/managers.py"),
         ("router.py", "src/templates/router.py"),
+        ("parse_hh.py", "src/parse_hh/parse_hh.py"),
+        ("parse_hh/helpers.py", "src/parse_hh/helpers.py")
     ]
 
     for display_name, file_path in files:
@@ -46,7 +48,7 @@ def run_mypy_checks():
             print(e.stdout)
             print(e.stderr, file=sys.stderr)
 
-    print(f'Прошли проверку: [{complete_count}/7] за {round(time_count, 3)}')
+    print(f'Прошли проверку: [{complete_count}/{len(files)}] за {round(time_count, 3)}')
 
 if __name__ == "__main__":
     run_mypy_checks()
