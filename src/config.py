@@ -16,8 +16,13 @@ POSTGRES_PASSWORD: Final[str] = os.environ.get("POSTGRES_PASSWORD", "inksne")
 POSTGRES_DB: Final[str] = os.environ.get("POSTGRES_DB", "inksne")
 POSTGRES_HOST: Final[str] = os.environ.get("POSTGRES_HOST", "postgres")
 
-TOKEN: Final[str] = os.environ.get("TOKEN", "null")
-TEST_ACCESS_TOKEN: Final[str] = os.environ.get("TEST_ACCESS_TOKEN", "null")
+CLIENT_ID: Final[str] = os.environ.get("CLIENT_ID", "null")
+CLIENT_SECRET: Final[str] = os.environ.get("CLIENT_SECRET", "null")
+
+APP_NAME: Final[str] = os.environ.get("APP_NAME", "null")
+APP_EMAIL: Final[str] = os.environ.get("APP_EMAIL", "null")
+
+ACCESS_TOKEN: Final[str] = os.environ.get("ACCESS_TOKEN", "null")
 
 
 class AuthJWT(BaseModel):
@@ -41,7 +46,7 @@ class DBSettings(BaseSettings):
 db_settings = DBSettings()
 
 
-def configure_logging(level: int = logging.DEBUG):
+def configure_logging(level: int = logging.INFO):
     logging.basicConfig(
         level=level,
         datefmt="%Y-%m-%d %H:%M:%S",
