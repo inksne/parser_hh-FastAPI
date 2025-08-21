@@ -5,6 +5,144 @@
 {% block styles %}
     {{ super() }}
     <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+        }
+
+        .user-card {
+            text-align: center;
+            padding: 1rem 0 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .sidebar-links {
+            list-style: none;
+        }
+
+        .sidebar-link {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .sidebar-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            font-weight: 500;
+        }
+
+        .sidebar-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .welcome-message {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(31, 41, 55, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
         .hero {
             text-align: center;
             max-width: 800px;
@@ -232,6 +370,16 @@
             to { transform: rotate(360deg); }
         }
 
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -263,130 +411,189 @@
 {% endblock %}
 
 {% block content %}
-    <div class="search-box">
-        <div class="form-group">
-            <label for="vacancy-name" class="form-label">Введите название вакансии</label>
-            <div class="vacancy-input-group">
-                <input 
-                    type="text" 
-                    id="vacancy-name" 
-                    class="vacancy-input" 
-                    placeholder="Например: Middle Python Developer"
-                >
-                <button class="filter-btn" id="filter-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 13H18V11H6V13ZM3 6V8H21V6H3ZM9 18H15V16H9V18Z"/>
-                    </svg>
-                    Фильтры
-                </button>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="user-card">
+                <div class="user-avatar">
+                    {{ current_user.username|first|upper }}
+                </div>
+                <div class="user-name">{{ current_user.username }}</div>
+                <div class="user-email">{{ current_user.email }}</div>
+            </div>
+            
+            <ul class="sidebar-links">
+                <li class="sidebar-link" onclick="openAllVacanciesModal()">
+                    <i>📋</i> Все вакансии
+                </li>
+                <li class="sidebar-link" onclick="logout()">
+                    <i>🚪</i> Выйти
+                </li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="section-header">
+                <h2 class="section-title">Обзор активности</h2>
+            </div>
+            
+            <p class="welcome-message">
+                Добро пожаловать, {{ current_user.username }}! Здесь вы можете искать вакансии,
+                просматривать историю поиска и настраивать ваш аккаунт.
+            </p>
+            
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value">{{ searches_count }}</div>
+                    <div class="stat-label">Всего поисков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ vacancies_count }}</div>
+                    <div class="stat-label">Найдено вакансий</div>
+                </div>
             </div>
 
-            <div class="filters-panel" id="filters-panel">
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label class="filter-label">Регион</label>
-                        <input type="text" class="filter-input" placeholder="Москва, Санкт-Петербург...">
+            <div class="hero">
+                <h1>Найди свою работу</h1>
+                <p>Ищите вакансии по всей России. Быстрый поиск, актуальные предложения, лучшие условия.</p>
+            </div>
+            
+            <div class="search-box">
+                <div class="form-group">
+                    <label for="vacancy-name" class="form-label">Введите название вакансии</label>
+                    <div class="vacancy-input-group">
+                        <input 
+                            type="text" 
+                            id="vacancy-name" 
+                            class="vacancy-input" 
+                            placeholder="Например: Middle Python Developer"
+                        >
+                        <button class="filter-btn" id="filter-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 13H18V11H6V13ZM3 6V8H21V6H3ZM9 18H15V16H9V18Z"/>
+                            </svg>
+                            Фильтры
+                        </button>
                     </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Опыт работы</label>
-                        <select class="filter-select">
-                            <option value="">Не имеет значения</option>
-                            <option value="noExperience">Нет опыта</option>
-                            <option value="between1And3">От 1 года до 3 лет</option>
-                            <option value="between3And6">От 3 до 6 лет</option>
-                            <option value="moreThan6">Более 6 лет</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Зарплата</label>
-                        <input type="number" class="filter-input" placeholder="Желаемая зарплата">
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Тип занятости</label>
-                        <div class="filter-checkbox-group">
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="employment" value="full">
-                                Полная
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="employment" value="part">
-                                Частичная
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="employment" value="project">
-                                Проект
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="employment" value="intern">
-                                Стажировка
-                            </label>
+
+                    <div class="filters-panel" id="filters-panel">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label class="filter-label">Регион</label>
+                                <input type="text" class="filter-input" placeholder="Москва, Санкт-Петербург...">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">Опыт работы</label>
+                                <select class="filter-select">
+                                    <option value="">Не имеет значения</option>
+                                    <option value="noExperience">Нет опыта</option>
+                                    <option value="between1And3">От 1 года до 3 лет</option>
+                                    <option value="between3And6">От 3 до 6 лет</option>
+                                    <option value="moreThan6">Более 6 лет</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">Зарплата</label>
+                                <input type="number" class="filter-input" placeholder="Желаемая зарплата">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">Тип занятости</label>
+                                <div class="filter-checkbox-group">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="employment" value="full">
+                                        Полная
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="employment" value="part">
+                                        Частичная
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="employment" value="project">
+                                        Проект
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="employment" value="intern">
+                                        Стажировка
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label class="filter-label">График работы</label>
+                                <div class="filter-checkbox-group">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="schedule" value="fullDay">
+                                        Полный день
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="schedule" value="shift">
+                                        Сменный
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="schedule" value="flexible">
+                                        Гибкий
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" name="schedule" value="remote">
+                                        Удалёнка
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-actions">
+                            <button class="reset-btn" id="reset-filters">Сбросить</button>
+                            <button class="apply-btn" id="apply-filters">Применить</button>
                         </div>
                     </div>
                     
-                    <div class="filter-group">
-                        <label class="filter-label">График работы</label>
-                        <div class="filter-checkbox-group">
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="fullDay">
-                                Полный день
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="shift">
-                                Сменный
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="flexible">
-                                Гибкий
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="remote">
-                                Удалёнка
-                            </label>
-                        </div>
+                    <div class="input-group">
+                        <button class="btn pulse" id="search-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            Найти вакансии
+                        </button>
                     </div>
                 </div>
                 
-                <div class="filter-actions">
-                    <button class="reset-btn" id="reset-filters">Сбросить</button>
-                    <button class="apply-btn" id="apply-filters">Применить</button>
+                <div class="result-box" id="result-box">
+                    <div class="result-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Вакансии успешно обработаны!
+                    </div>
+                    <div class="result-content">
+                        <p>Найдено <strong>24</strong> подходящих вакансии. <a href="/results" style="color: var(--accent);">Просмотреть результаты</a></p>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    Анализируем вакансии, пожалуйста подождите...
                 </div>
             </div>
-            
-            <div class="input-group">
-                <button class="btn pulse" id="search-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    Найти вакансии
-                </button>
-            </div>
-        </div>
-        
-        <div class="result-box" id="result-box">
-            <div class="result-title">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Вакансии успешно обработаны!
-            </div>
-            <div class="result-content">
-                <p>Найдено <strong>24</strong> подходящих вакансии. <a href="/results" style="color: var(--accent);">Просмотреть результаты</a></p>
-            </div>
-        </div>
-        
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            Анализируем вакансии, пожалуйста подождите...
         </div>
     </div>
 
-    <!-- Оригинальный контент личного кабинета -->
+    <div id="allVacanciesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAllVacanciesModal()">&times;</span>
+            <div class="modal-header">
+                <h2>История ваших поисков</h2>
+            </div>
+            <div class="modal-body" id="allVacanciesContainer">
+                <div class="no-links-message">Здесь будет отображаться история ваших поисков вакансий</div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        // Существующий скрипт для работы с JWT
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
@@ -495,13 +702,16 @@
                 console.error('Ошибка при выходе:', error);
             }
         }
-    </script>
-{% endblock %}
+        
+        function openAllVacanciesModal() {
+            const modal = document.getElementById("allVacanciesModal");
+            modal.style.display = "block";
+        }
+        
+        function closeAllVacanciesModal() {
+            document.getElementById("allVacanciesModal").style.display = "none";
+        }
 
-{% block scripts %}
-    {{ super() }}
-    <script>
-        // Скрипт для работы поиска (добавлен в конец)
         document.addEventListener('DOMContentLoaded', function() {
             const searchBtn = document.getElementById('search-btn');
             const filterBtn = document.getElementById('filter-btn');
@@ -567,5 +777,12 @@
                 }
             });
         });
+
+        window.onclick = function(event) {
+            const allVacanciesModal = document.getElementById("allVacanciesModal");
+            if (event.target == allVacanciesModal) {
+                closeAllVacanciesModal();
+            }
+        };
     </script>
 {% endblock %}
