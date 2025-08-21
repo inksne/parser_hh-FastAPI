@@ -56,7 +56,7 @@ user_exists_exc = HTTPException(
 )
 
 
-not_found_link = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail='Ссылка не найдена.'
+api_hh_exc = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail='Ошибка подключения к API HH'
 )
