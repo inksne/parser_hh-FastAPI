@@ -22,7 +22,7 @@ CLIENT_SECRET: Final[str] = os.environ.get("CLIENT_SECRET", "null")
 APP_NAME: Final[str] = os.environ.get("APP_NAME", "null")
 APP_EMAIL: Final[str] = os.environ.get("APP_EMAIL", "null")
 
-ACCESS_TOKEN: Final[str] = os.environ.get("ACCESS_TOKEN", "null") 
+ACCESS_TOKEN: Final[str] = os.environ.get("ACCESS_TOKEN", "null")
 
 
 class AuthJWT(BaseModel):
