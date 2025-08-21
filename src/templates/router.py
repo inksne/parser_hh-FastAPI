@@ -48,4 +48,4 @@ async def get_login_page(request: Request) -> _TemplateResponse:
 
 @router.get('/authenticated/', response_class=HTMLResponse)
 async def get_auth_page(request: Request, current_user: User = Depends(get_current_auth_user)) -> _TemplateResponse:
-    return templates.TemplateResponse(request, "authenticated.html")
+    return templates.TemplateResponse(request, "authenticated.html", {"current_user": current_user})
