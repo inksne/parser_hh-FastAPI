@@ -366,11 +366,11 @@
 
                     <div class="filter-group">
                         <label class="filter-label">Формат работы</label>
-                        <select id="work_format" class="filter-select">
+                        <select id="work_format" name="work_format" class="filter-select">
                             <option value="">Не имеет значения</option>
-                            <option value="office">Офис</option>
-                            <option value="remote">Удалёнка</option>
-                            <option value="hybrid">Гибрид</option>
+                            <option value="ON_SITE">Офис</option>
+                            <option value="REMOTE">Удалёнка</option>
+                            <option value="HYBRID">Гибрид</option>
                         </select>
                     </div>
                     
@@ -400,31 +400,16 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label">График работы</label>
-                        <div class="filter-checkbox-group">
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="fullDay">
-                                Полный день
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="shift">
-                                Сменный
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="flexible">
-                                Гибкий
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="remote">
-                                Удалённая работа
-                            </label>
-                            <label class="filter-checkbox">
-                                <input type="checkbox" name="schedule" value="fly_in_fly_out">
-                                Вахтовый метод
-                            </label>
-                        </div>
+                        <select id="schedule" name="schedule" class="filter-select">
+                            <option value="">Не имеет значения</option>
+                            <option value="fullDay">Полный день</option>
+                            <option value="shift">Сменный</option>
+                            <option value="flexible">Гибкий</option>
+                            <option value="remote">Удалённая работа</option>
+                        </select>
                     </div>
 
                     <div class="filter-group">
@@ -468,7 +453,7 @@
                 Вакансии успешно обработаны!
             </div>
             <div class="result-content">
-                <p>Найдено <strong id="result-count">24</strong> подходящих вакансии. <a href="/results" style="color: var(--accent);">Просмотреть результаты</a></p>
+                <p>Найдено <strong id="result-count">24</strong> подходящих вакансии. <a id="results-link" href="/results" style="color: var(--accent);">Просмотреть результаты</a></p>
             </div>
         </div>
         
@@ -523,6 +508,13 @@
             const pageHidden = document.getElementById('page');
             const perPageHidden = document.getElementById('per_page');
 
+            const employmentMap = {
+                'full': 'FULL',
+                'part': 'PART',
+                'project': 'PROJECT',
+                'fly_in_fly_out': 'FLY_IN_FLY_OUT'
+            };
+
             if (filterBtn && filtersPanel) {
                 filterBtn.addEventListener('click', function() {
                     filtersPanel.classList.toggle('active');
@@ -531,11 +523,9 @@
 
             if (applyFiltersBtn) {
                 applyFiltersBtn.addEventListener('click', function() {
-                    const workFormatSelect = document.getElementById('work_format');
                     const perPageSelect = document.getElementById('per_page_select');
                     const pageInput = document.getElementById('page_input');
 
-                    if (workFormatSelect) perPageHidden.value = perPageSelect?.value || perPageHidden.value;
                     if (perPageSelect) perPageHidden.value = perPageSelect.value || perPageHidden.value;
                     if (pageInput) pageHidden.value = pageInput.value || pageHidden.value;
 
@@ -547,14 +537,11 @@
                 resetFiltersBtn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-input, .filter-select').forEach(el => {
                         if (el.tagName === 'INPUT') {
-                            el.value = '';
+                            if (el.type === 'number' || el.type === 'text') el.value = '';
+                            else if (el.type === 'checkbox') el.checked = false;
                         } else if (el.tagName === 'SELECT') {
                             el.selectedIndex = 0;
                         }
-                    });
-
-                    document.querySelectorAll('.filter-checkbox input').forEach(checkbox => {
-                        checkbox.checked = false;
                     });
 
                     pageHidden.value = '0';
@@ -568,9 +555,9 @@
 
             if (searchBtn) {
                 searchBtn.addEventListener('click', function() {
-                    const vacancyName = document.getElementById('vacancy-name').value.trim();
+                    const vacancyText = document.getElementById('vacancy-name').value.trim();
 
-                    if (!vacancyName) {
+                    if (!vacancyText) {
                         alert('Пожалуйста, введите название вакансии');
                         return;
                     }
@@ -578,33 +565,38 @@
                     loading.style.display = 'block';
                     resultBox.style.display = 'none';
 
+                    const employmentSelected = Array.from(document.querySelectorAll('input[name="employment_multi"]:checked')).map(x => x.value);
+
                     const filters = {
-                        query: vacancyName,
+                        text: vacancyText,
                         area: document.getElementById('area')?.value || '',
                         experience: document.getElementById('experience')?.value || '',
                         work_format: document.getElementById('work_format')?.value || '',
                         salary: document.getElementById('salary')?.value || '',
+                        schedule: document.getElementById('schedule')?.value || '',
                         page: pageHidden.value,
-                        per_page: perPageHidden.value,
-                        employment_multi: Array.from(document.querySelectorAll('input[name="employment_multi"]:checked')).map(x => x.value),
-                        schedule: Array.from(document.querySelectorAll('input[name="schedule"]:checked')).map(x => x.value),
+                        per_page: perPageHidden.value
                     };
 
                     const params = new URLSearchParams();
-                    if (filters.query) params.append('query', filters.query);
+                    if (filters.text) params.append('text', filters.text);
                     if (filters.area) params.append('area', filters.area);
                     if (filters.experience) params.append('experience', filters.experience);
                     if (filters.work_format) params.append('work_format', filters.work_format);
                     if (filters.salary) params.append('salary', filters.salary);
+                    if (filters.schedule) params.append('schedule', filters.schedule);
                     if (filters.page !== undefined) params.append('page', filters.page);
                     if (filters.per_page !== undefined) params.append('per_page', filters.per_page);
 
-                    filters.employment_multi.forEach(v => params.append('employment_multi', v));
-                    filters.schedule.forEach(v => params.append('schedule', v));
+                    employmentSelected
+                        .map(v => employmentMap[v])
+                        .filter(Boolean)
+                        .forEach(mapped => params.append('employment_form', mapped));
 
-                    fetch('/api/vacancies?' + params.toString(), {
+                    fetch('/get_vacancies?' + params.toString(), {
                         method: 'GET',
-                        headers: { 'Accept': 'application/json' }
+                        headers: {'Accept': 'application/json'},
+                        credentials: 'include'
                     })
                     .then(resp => {
                         if (!resp.ok) throw new Error('Ошибка сети: ' + resp.status);
@@ -614,7 +606,7 @@
                         const count = data.count ?? (Array.isArray(data.items) ? data.items.length : 0);
                         document.getElementById('result-count').innerText = String(count);
 
-                        const resultsLink = document.querySelector('#result-box a');
+                        const resultsLink = document.getElementById('results-link');
                         if (resultsLink) {
                             resultsLink.href = '/results?' + params.toString();
                         }
