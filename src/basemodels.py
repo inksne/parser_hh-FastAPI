@@ -5,6 +5,7 @@ from typing import Optional
 class GetVacanciesModel(BaseModel):
     page: Optional[int] = 0
     per_page: Optional[int] = 20
+    text: Optional[str] = None
     experience: Optional[str] = None
     employment_form: Optional[str] = None
     work_format: Optional[str] = None
@@ -17,6 +18,7 @@ class GetVacanciesModel(BaseModel):
 class AuthGetVacanciesModel(BaseModel):
     page: Optional[int] = 0
     per_page: Optional[int] = 20
+    text: Optional[str] = None
     experience: Optional[str] = None
     employment_form: Optional[str] = None
     work_format: Optional[str] = None
