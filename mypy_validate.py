@@ -16,7 +16,9 @@ def run_mypy_checks():
         ("managers.py", "src/database/managers.py"),
         ("router.py", "src/templates/router.py"),
         ("parse_hh.py", "src/parse_hh/parse_hh.py"),
-        ("parse_hh/helpers.py", "src/parse_hh/helpers.py")
+        ("parse_hh/helpers.py", "src/parse_hh/helpers.py"),
+        ("areas_index.py", "src/parse_hh/areas_index.py"),
+        ("dependencies.py", "src/parse_hh/dependencies.py")
     ]
 
     for display_name, file_path in files:
