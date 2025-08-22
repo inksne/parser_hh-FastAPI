@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 from .helpers import create_query_params, auth_create_query_params
+from .dependencies import get_area_resolver
 from auth.validation import get_current_auth_user
 from database.models import User
 from config import configure_logging, APP_NAME, APP_EMAIL, ACCESS_TOKEN
@@ -18,26 +19,43 @@ logger = logging.getLogger(__name__)
 
 
 router = APIRouter(tags=['Parse_HH'])
-    
+
 
 @router.get('/get_vacancies')
-async def get_vacancies(params: GetVacanciesModel = Depends()) -> Any:
+async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver = Depends(get_area_resolver)) -> Any:
     try:
         headers = {
             'Authorization': f'Bearer {ACCESS_TOKEN}',
             'User-Agent': f'{APP_NAME}/1.0 ({APP_EMAIL})'
         }
 
-        query_params = create_query_params(params)
+        query_params = create_query_params(params, area_resolver)
+
+        params_for_httpx: list[tuple[str, str]] = []
+
+        for k, v in query_params.items():
+            if v is None:
+                continue
+
+            if isinstance(v, (list, tuple)):
+                for item in v:
+                    params_for_httpx.append((k, str(item)))
+
+            else:
+                params_for_httpx.append((k, str(v)))
+
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 'https://api.hh.ru/vacancies',
                 headers=headers,
-                params=query_params
+                params=params_for_httpx
             )
 
             response.raise_for_status()
+
+            logger.warning(response.json())
+
             return response.json()
 
     except httpx.HTTPStatusError as e:
@@ -86,9 +104,9 @@ async def auth_get_vacancies(
 @router.get("/get_areas")
 async def get_areas() -> Any:
     '''
-    использовать только для отладки, а именно - для получения кодов всех доступных стран и регионов.
-    не использовать на проде, так как сильно нагружает приложение и превышает допустимое время ожидания.
-    в одном каталоге с данным файлом уже лежит json со всеми кодами стран и регионов.
+    использовать только для отладки, а именно - для получения кодов всех доступных стран и регионов
+    не использовать на проде, так как сильно нагружает приложение и превышает допустимое время ожидания
+    в одном каталоге с данным файлом уже лежит json со всеми кодами стран и регионов
     '''
     
     try:
@@ -118,7 +136,7 @@ async def get_areas() -> Any:
 
 @router.get("/get_metro")
 async def get_metro(city_id: int) -> Any:
-    '''использовать только для отладки, а именно - для получения кодов всех доступных веток метро.'''
+    '''использовать только для отладки, а именно - для получения кодов всех доступных веток метро'''
     
     try:
         headers = {
