@@ -2,7 +2,7 @@ from fastapi import Depends
 
 from typing import Optional, Any
 
-from basemodels import GetVacanciesModel
+from basemodels import AuthGetVacanciesModel, GetVacanciesModel
 
 
 
@@ -76,7 +76,7 @@ def map_education(education: str) -> Optional[str]:
 
 
 
-def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]:
+def auth_create_query_params(params: AuthGetVacanciesModel = Depends()) -> dict[str, Any]:
     query_params = {}
         
     if params.experience:
@@ -121,9 +121,6 @@ def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]
         if work_format:
             query_params['work_format'] = work_format
 
-    if not params.no_magic:
-        query_params['no_magic'] = params.no_magic
-
     if params.premium:
         query_params['premium'] = params.premium
 
@@ -133,6 +130,49 @@ def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]
 
     query_params['page'] = params.page
     query_params['per_page'] = params.per_page
+    query_params['no_magic'] = params.no_magic
+
+
+    return query_params
+
+
+
+def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]:
+    query_params = {}
+        
+    if params.experience:
+        experience = map_experience(params.experience)
+
+        if experience:
+            query_params['experience'] = experience
+
+    if params.employment_form:
+        employment_form = map_employment_form(params.employment_form)
+
+        if employment_form:
+            query_params['employment_form'] = employment_form
+
+    if params.schedule:
+        schedule = map_schedule(params.schedule)
+
+        if schedule:
+            query_params['schedule'] = schedule
+
+    if params.area:
+        query_params['area'] = params.area
+
+    if params.salary:
+        query_params['salary'] = params.salary
+
+    if params.work_format:
+        work_format = map_work_format(params.work_format)
+
+        if work_format:
+            query_params['work_format'] = work_format
+
+    query_params['page'] = params.page
+    query_params['per_page'] = params.per_page
+    query_params['no_magic'] = params.no_magic
 
 
     return query_params
