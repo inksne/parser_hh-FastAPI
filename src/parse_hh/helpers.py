@@ -2,6 +2,8 @@ from fastapi import Depends
 
 from typing import Optional, Any
 
+from .dependencies import get_area_resolver
+from .areas_index import AreaResolver
 from basemodels import AuthGetVacanciesModel, GetVacanciesModel
 
 
@@ -78,6 +80,9 @@ def map_education(education: str) -> Optional[str]:
 
 def auth_create_query_params(params: AuthGetVacanciesModel = Depends()) -> dict[str, Any]:
     query_params = {}
+
+    if params.text:
+        query_params['text'] = params.text
         
     if params.experience:
         experience = map_experience(params.experience)
@@ -137,8 +142,13 @@ def auth_create_query_params(params: AuthGetVacanciesModel = Depends()) -> dict[
 
 
 
-def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]:
+def create_query_params(
+    params: GetVacanciesModel = Depends(), area_resolver: AreaResolver | None = None
+) -> dict[str, Any]:
     query_params = {}
+
+    if params.text:
+        query_params['text'] = params.text
         
     if params.experience:
         experience = map_experience(params.experience)
@@ -158,8 +168,10 @@ def create_query_params(params: GetVacanciesModel = Depends()) -> dict[str, Any]
         if schedule:
             query_params['schedule'] = schedule
 
-    if params.area:
-        query_params['area'] = params.area
+    if params.area and area_resolver is not None:
+        ids = area_resolver.resolve(params.area)
+
+        query_params['area'] = ids
 
     if params.salary:
         query_params['salary'] = params.salary
