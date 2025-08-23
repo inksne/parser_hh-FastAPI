@@ -3,6 +3,7 @@ import sys
 import time
 
 
+
 complete_count = time_count = 0
 
 
@@ -51,6 +52,7 @@ def run_mypy_checks():
             print(e.stderr, file=sys.stderr)
 
     print(f'Прошли проверку: [{complete_count}/{len(files)}] за {round(time_count, 3)}')
+
 
 if __name__ == "__main__":
     run_mypy_checks()
