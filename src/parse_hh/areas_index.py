@@ -33,7 +33,7 @@ def normalize_name(name: str) -> str:
 
 
 
-def build_area_index(area_json: list[dict[str, Any]]) -> tuple[dict[str, list[dict[str, Any]]], dict[str]]:
+def build_area_index(area_json: list[dict[str, Any]]) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
     '''
     преобразует древовидный JSON областей в индекс:
       name_map: normalized_name -> list of entries {id, name, depth, path}
@@ -43,7 +43,7 @@ def build_area_index(area_json: list[dict[str, Any]]) -> tuple[dict[str, list[di
     all_names: list[str] = []
 
 
-    def dfs(node: dict[str, Any], path: list[str]):
+    def dfs(node: dict[str, Any], path: list[str]) -> None:
         node_id = node.get("id")
         node_name = node.get("name", "")
         depth = len(path)  # корень depth=0 (страна), глубже = город/населённый пункт
@@ -92,7 +92,7 @@ def choose_best_candidate(candidates: list[dict[str, Any]]) -> list[str]:
 
 
 class AreaResolver:
-    def __init__(self, name_map: dict[str, list[dict[str,Any]]], all_names: list[str]) -> None:
+    def __init__(self, name_map: dict[str, list[dict[str, Any]]], all_names: list[str]) -> None:
         self.name_map = name_map
         self.all_names = all_names
 

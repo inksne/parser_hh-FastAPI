@@ -22,7 +22,7 @@ router = APIRouter(tags=['Parse_HH'])
 
 
 @router.get('/get_vacancies')
-async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver = Depends(get_area_resolver)) -> Any:
+async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver: Any = Depends(get_area_resolver)) -> Any:
     try:
         headers = {
             'Authorization': f'Bearer {ACCESS_TOKEN}',
@@ -31,7 +31,7 @@ async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver = D
 
         query_params = create_query_params(params, area_resolver)
 
-        params_for_httpx: list[tuple[str, str]] = []
+        params_for_httpx: list[tuple[str, str | int | float | bool | None]] = []
 
         for k, v in query_params.items():
             if v is None:
