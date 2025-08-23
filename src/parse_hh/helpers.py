@@ -78,7 +78,9 @@ def map_education(education: str) -> Optional[str]:
 
 
 
-def auth_create_query_params(params: AuthGetVacanciesModel = Depends()) -> dict[str, Any]:
+def auth_create_query_params(
+    params: AuthGetVacanciesModel = Depends(), area_resolver: AreaResolver | None = None
+) -> dict[str, Any]:
     query_params: dict[str, Any] = {}
 
     if params.text:
@@ -102,8 +104,10 @@ def auth_create_query_params(params: AuthGetVacanciesModel = Depends()) -> dict[
         if schedule:
             query_params['schedule'] = schedule
 
-    if params.area:
-        query_params['area'] = params.area
+    if params.area and area_resolver is not None:
+        ids = area_resolver.resolve(params.area)
+
+        query_params['area'] = ids
 
     if params.salary:
         query_params['salary'] = params.salary

@@ -592,8 +592,8 @@
                                         Выключить умный поиск
                                     </label>
                                     <label class="filter-checkbox">
-                                        <input type="checkbox" id="premium" name="premium">
-                                        Только премиум
+                                        <input type="checkbox" id="premium" name="premium" checked>
+                                        Показать премиум
                                     </label>
                                     <label class="filter-checkbox">
                                         <input type="checkbox" id="responses_count_enabled" name="responses_count_enabled" checked>
@@ -799,6 +799,13 @@
             const pageHidden = document.getElementById('page');
             const perPageHidden = document.getElementById('per_page');
 
+            const employmentMap = {
+                'full': 'FULL',
+                'part': 'PART',
+                'project': 'PROJECT',
+                'fly_in_fly_out': 'FLY_IN_FLY_OUT'
+            };
+
             if (filterBtn && filtersPanel) {
                 filterBtn.addEventListener('click', function() {
                     filtersPanel.classList.toggle('active');
@@ -855,6 +862,8 @@
                     loading.style.display = 'block';
                     resultBox.style.display = 'none';
 
+                    const employmentSelected = Array.from(document.querySelectorAll('input[name="employment_multi"]:checked')).map(x => x.value);
+
                     const filters = {
                         query: vacancyName,
                         area: document.getElementById('area')?.value || '',
@@ -866,7 +875,6 @@
                         education: document.getElementById('education')?.value || '',
                         page: pageHidden.value,
                         per_page: perPageHidden.value,
-                        employment_multi: Array.from(document.querySelectorAll('input[name="employment_multi"]:checked')).map(x => x.value),
                         schedule: Array.from(document.querySelectorAll('input[name="schedule"]:checked')).map(x => x.value),
                         no_magic: document.getElementById('no_magic')?.checked,
                         premium: document.getElementById('premium')?.checked,
@@ -885,13 +893,18 @@
                     if (filters.page !== undefined) params.append('page', filters.page);
                     if (filters.per_page !== undefined) params.append('per_page', filters.per_page);
 
-                    filters.employment_multi.forEach(v => params.append('employment_multi', v));
+                    employmentSelected
+                        .map(v => employmentMap[v])
+                        .filter(Boolean)
+                        .forEach(mapped => params.append('employment_form', mapped));
+
                     filters.schedule.forEach(v => params.append('schedule', v));
-                    if (filters.no_magic) params.append('no_magic', 'true');
+
+                    if (filters.no_magic) params.append('no_magic', 'false');
                     if (filters.premium) params.append('premium', 'true');
                     if (!filters.responses_count_enabled) params.append('responses_count_enabled', 'false');
 
-                    fetch('/api/vacancies?' + params.toString(), {
+                    fetch('/authenticated/get_vacancies?' + params.toString(), {
                         method: 'GET',
                         headers: { 'Accept': 'application/json' },
                         credentials: 'include'

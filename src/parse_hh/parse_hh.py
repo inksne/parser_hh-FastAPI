@@ -71,6 +71,7 @@ async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver: An
 @router.get('/authenticated/get_vacancies')
 async def auth_get_vacancies(
     params: AuthGetVacanciesModel = Depends(),
+    area_resolver: Any = Depends(get_area_resolver),
     current_user: User = Depends(get_current_auth_user)
 ) -> Any:
     try:
@@ -79,14 +80,29 @@ async def auth_get_vacancies(
             'User-Agent': f'{APP_NAME}/1.0 ({APP_EMAIL})'
         }
 
-        query_params = auth_create_query_params(params)
+        query_params = auth_create_query_params(params, area_resolver)
+
+        params_for_httpx: list[tuple[str, str | int | float | bool | None]] = []
+
+        for k, v in query_params.items():
+            if v is None:
+                continue
+
+            if isinstance(v, (list, tuple)):
+                for item in v:
+                    params_for_httpx.append((k, str(item)))
+
+            else:
+                params_for_httpx.append((k, str(v)))
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 'https://api.hh.ru/vacancies',
                 headers=headers,
-                params=query_params
+                params=params_for_httpx
             )
+
+            logger.warning(response.json())
 
             response.raise_for_status()
             return response.json()
