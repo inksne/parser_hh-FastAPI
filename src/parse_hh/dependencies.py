@@ -5,3 +5,7 @@ from typing import Any
 
 def get_area_resolver(request: Request) -> Any:
     return request.app.state.area_resolver
+
+
+def get_metro_resolver(request: Request) -> Any:
+    return request.app.state.metro_resolver

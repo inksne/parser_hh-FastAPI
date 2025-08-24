@@ -2,8 +2,8 @@ from fastapi import Depends
 
 from typing import Optional, Any
 
-from .dependencies import get_area_resolver
 from .areas_index import AreaResolver
+from .metro_index import MetroResolver
 from basemodels import AuthGetVacanciesModel, GetVacanciesModel
 
 
@@ -79,7 +79,9 @@ def map_education(education: str) -> Optional[str]:
 
 
 def auth_create_query_params(
-    params: AuthGetVacanciesModel = Depends(), area_resolver: AreaResolver | None = None
+    params: AuthGetVacanciesModel = Depends(),
+    metro_resolver: MetroResolver | None = None,
+    area_resolver: AreaResolver | None = None
 ) -> dict[str, Any]:
     query_params: dict[str, Any] = {}
 
@@ -115,8 +117,10 @@ def auth_create_query_params(
     if params.currency:
         query_params['currency'] = params.currency
 
-    if params.metro:
-        query_params['metro'] = params.metro
+    if getattr(params, 'metro', None) and metro_resolver is not None:
+        station_ids = metro_resolver.resolve(params.metro)
+        if station_ids:
+            query_params['metro'] = station_ids
 
     if params.education:
         education = map_education(params.education)

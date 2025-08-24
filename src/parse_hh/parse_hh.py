@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from .helpers import create_query_params, auth_create_query_params
-from .dependencies import get_area_resolver
+from .dependencies import get_area_resolver, get_metro_resolver
 from auth.validation import get_current_auth_user
 from database.models import User
 from config import configure_logging, APP_NAME, APP_EMAIL, ACCESS_TOKEN
@@ -72,6 +72,7 @@ async def get_vacancies(params: GetVacanciesModel = Depends(), area_resolver: An
 async def auth_get_vacancies(
     params: AuthGetVacanciesModel = Depends(),
     area_resolver: Any = Depends(get_area_resolver),
+    metro_resolver: Any = Depends(get_metro_resolver),
     current_user: User = Depends(get_current_auth_user)
 ) -> Any:
     try:
@@ -80,7 +81,7 @@ async def auth_get_vacancies(
             'User-Agent': f'{APP_NAME}/1.0 ({APP_EMAIL})'
         }
 
-        query_params = auth_create_query_params(params, area_resolver)
+        query_params = auth_create_query_params(params, metro_resolver, area_resolver)
 
         params_for_httpx: list[tuple[str, str | int | float | bool | None]] = []
 
@@ -151,8 +152,11 @@ async def get_areas() -> Any:
 
 
 @router.get("/get_metro")
-async def get_metro(city_id: int) -> Any:
-    '''использовать только для отладки, а именно - для получения кодов всех доступных веток метро'''
+async def get_metro() -> Any:
+    '''
+    использовать только для отладки, а именно - для получения кодов всех доступных веток метро
+    в одном каталоге с данным файлом уже лежит json с кодами всех веток и станций метро
+    '''
     
     try:
         headers = {
@@ -162,7 +166,7 @@ async def get_metro(city_id: int) -> Any:
 
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f'https://api.hh.ru/metro/{city_id}',
+                f'https://api.hh.ru/metro',
                 headers=headers,
             )
             
