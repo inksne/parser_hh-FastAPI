@@ -415,6 +415,8 @@
                     <div class="filter-group">
                         <label class="filter-label">Показать на странице</label>
                         <select id="per_page_select" class="filter-select">
+                            <option value="1">1</option>
+                            <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="20" selected>20</option>
                             <option value="50">50</option>
@@ -556,11 +558,6 @@
             if (searchBtn) {
                 searchBtn.addEventListener('click', function() {
                     const vacancyText = document.getElementById('vacancy-name').value.trim();
-
-                    if (!vacancyText) {
-                        alert('Пожалуйста, введите название вакансии');
-                        return;
-                    }
 
                     loading.style.display = 'block';
                     resultBox.style.display = 'none';
