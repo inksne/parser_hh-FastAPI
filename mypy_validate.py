@@ -19,6 +19,7 @@ def run_mypy_checks():
         ("parse_hh.py", "src/parse_hh/parse_hh.py"),
         ("parse_hh/helpers.py", "src/parse_hh/helpers.py"),
         ("areas_index.py", "src/parse_hh/areas_index.py"),
+        ("metro_index.py", "src/parse_hh/metro_index.py"),
         ("dependencies.py", "src/parse_hh/dependencies.py")
     ]
 
