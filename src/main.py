@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from database.database import create_db_and_tables
-from parse_hh import load_area_resolver_from_file
+from parse_hh import load_area_resolver_from_file, load_metro_resolver_from_file
 from config import configure_logging
 
 from auth import router as auth_router
@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     app.state.area_resolver = load_area_resolver_from_file("parse_hh/areas.json")
     logger.info('преобразователь areas в id загружен')
+    
+    app.state.metro_resolver = load_metro_resolver_from_file("parse_hh/metro.json")
+    logger.info('преобразователь metro в id загружен')
 
     await create_db_and_tables()
     yield
