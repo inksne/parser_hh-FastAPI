@@ -109,13 +109,6 @@
             color: var(--text);
         }
 
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
         .stat-card {
             background: rgba(31, 41, 55, 0.5);
             border-radius: 12px;
@@ -141,33 +134,6 @@
         .stat-label {
             color: var(--text-secondary);
             font-size: 1rem;
-        }
-
-        .hero {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 4rem;
-            padding: 2rem 0;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-            font-weight: 800;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .search-box {
@@ -435,28 +401,12 @@
             <div class="section-header">
                 <h2 class="section-title">Обзор активности</h2>
             </div>
-            
+
             <p class="welcome-message">
                 Добро пожаловать, {{ current_user.username }}! Здесь вы можете искать вакансии,
                 просматривать историю поиска и настраивать ваш аккаунт.
             </p>
-            
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-value">{{ searches_count }}</div>
-                    <div class="stat-label">Всего поисков</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{{ vacancies_count }}</div>
-                    <div class="stat-label">Найдено вакансий</div>
-                </div>
-            </div>
 
-            <div class="hero">
-                <h1>Найди свою работу</h1>
-                <p>Ищите вакансии по всей России. Быстрый поиск, актуальные предложения, лучшие условия.</p>
-            </div>
-            
             <div class="search-box">
                 <input type="hidden" id="page" name="page" value="0">
                 <input type="hidden" id="per_page" name="per_page" value="20">
