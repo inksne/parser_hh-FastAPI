@@ -315,6 +315,101 @@
                 padding: 1.5rem;
             }
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding: 40px 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 0 auto;
+            border-radius: 12px;
+            max-width: 1000px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .vacancy-card {
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: rgba(22,32,47,0.6);
+            border: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vacancy-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .vacancy-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .vacancy-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .vacancy-salary {
+            font-weight: 600;
+        }
+
+        .vacancy-link {
+            align-self: flex-start;
+            margin-top: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .modal-content { padding: 12px; }
+            .vacancy-row { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 {% endblock %}
 
@@ -322,6 +417,7 @@
     <section class="hero">
         <h1>Найдите работу своей мечты</h1>
         <p>Анализируем тысячи вакансий с HH.ru чтобы подобрать идеальные предложения именно для вас</p>
+        <p>Для более детального поиска, более подробного описания вакансии и сохранения вакансий необходимо авторизоваться.</p>
     </section>
     
     <div class="search-box">
@@ -455,13 +551,32 @@
                 Вакансии успешно обработаны!
             </div>
             <div class="result-content">
-                <p>Найдено <strong id="result-count">24</strong> подходящих вакансии. <a id="results-link" href="/results" style="color: var(--accent);">Просмотреть результаты</a></p>
+                <p>Найдено <strong id="result-count">24</strong> подходящих вакансии. 
+                    <button id="open-results-btn" class="apply-btn" type="button" style="margin-left:12px;">Просмотреть результаты</button>
+                </p>
             </div>
         </div>
         
         <div class="loading" id="loading">
             <div class="loading-spinner"></div>
             Анализируем вакансии, пожалуйста подождите...
+        </div>
+    </div>
+
+    <div id="vacanciesModal" class="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div class="modal-title">Результаты поиска</div>
+                <div>
+                    <button id="modal-close-btn" class="modal-close" aria-label="Закрыть">&times;</button>
+                </div>
+            </div>
+
+            <div id="vacanciesContainer"></div>
+
+            <div style="margin-top:12px; text-align:right;">
+                <button id="modal-close-footer" class="reset-btn" type="button">Закрыть</button>
+            </div>
         </div>
     </div>
 
@@ -510,6 +625,14 @@
             const pageHidden = document.getElementById('page');
             const perPageHidden = document.getElementById('per_page');
 
+            const openResultsBtn = document.getElementById('open-results-btn');
+            const vacanciesModal = document.getElementById('vacanciesModal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalCloseFooter = document.getElementById('modal-close-footer');
+            const vacanciesContainer = document.getElementById('vacanciesContainer');
+
+            window.lastVacanciesData = null;
+
             const employmentMap = {
                 'full': 'FULL',
                 'part': 'PART',
@@ -554,6 +677,188 @@
                     if (pageInput) pageInput.value = '0';
                 });
             }
+
+            function formatSalary(salary, salary_range) {
+                if (!salary && !salary_range) return 'Не указана';
+
+                if (salary) {
+                    const from = salary.from;
+                    const to = salary.to;
+                    const cur = salary.currency || '';
+                    if (from != null && to != null) return `${from}–${to} ${cur}`.trim();
+                    if (from != null) return `от ${from} ${cur}`.trim();
+                    if (to != null) return `до ${to} ${cur}`.trim();
+                }
+
+                if (salary_range && typeof salary_range === 'object') {
+                    const from = salary_range.from;
+                    const to = salary_range.to;
+                    const cur = salary_range.currency || '';
+                    if (from != null && to != null) return `${from}–${to} ${cur}`.trim();
+                    if (from != null) return `от ${from} ${cur}`.trim();
+                    if (to != null) return `до ${to} ${cur}`.trim();
+                }
+
+                return 'Не указана';
+            }
+
+            function createVacancyCard(vac) {
+                const card = document.createElement('div');
+                card.className = 'vacancy-card';
+
+                const titleRow = document.createElement('div');
+                titleRow.className = 'vacancy-row';
+
+                const title = document.createElement('div');
+                title.className = 'vacancy-title';
+                title.textContent = vac.name || 'Без названия';
+                titleRow.appendChild(title);
+
+                const date = document.createElement('div');
+                date.className = 'vacancy-meta';
+                if (vac.published_at) {
+                    try {
+                        const d = new Date(vac.published_at);
+                        date.textContent = d.toLocaleString();
+                    } catch (e) {
+                        date.textContent = vac.published_at;
+                    }
+                } else {
+                    date.textContent = '';
+                }
+                titleRow.appendChild(date);
+                card.appendChild(titleRow);
+
+                const metaRow = document.createElement('div');
+                metaRow.className = 'vacancy-row';
+
+                const place = document.createElement('div');
+                place.className = 'vacancy-meta';
+                place.textContent = vac.area?.name ? `Город: ${vac.area.name}` : (vac.address?.raw ? `Место: ${vac.address.raw}` : 'Город: не указан');
+                metaRow.appendChild(place);
+
+                const experience = document.createElement('div');
+                experience.className = 'vacancy-meta';
+                experience.textContent = vac.experience?.name ? `Опыт работы: ${vac.experience.name}` : 'Опыт работы: не указан';
+                metaRow.appendChild(experience);
+
+                const employment = document.createElement('div');
+                employment.className = 'vacancy-meta';
+                const empName = vac.employment_form?.name || vac.employment?.name;
+                employment.textContent = empName ? `Занятость: ${empName}` : 'Занятость: не указана';
+                metaRow.appendChild(employment);
+
+                card.appendChild(metaRow);
+
+                const wfRow = document.createElement('div');
+                wfRow.className = 'vacancy-row';
+
+                const workFormat = document.createElement('div');
+                workFormat.className = 'vacancy-meta';
+                if (Array.isArray(vac.work_format) && vac.work_format.length > 0) {
+                    const names = vac.work_format.map(w => w.name || w.id).filter(Boolean);
+                    workFormat.textContent = `Формат: ${names.join(', ')}`;
+                } else {
+                    workFormat.textContent = 'Формат: не указан';
+                }
+                wfRow.appendChild(workFormat);
+
+                const schedule = document.createElement('div');
+                schedule.className = 'vacancy-meta';
+                schedule.textContent = vac.schedule?.name ? `График работы: ${vac.schedule.name}` : 'График работы: не указан';
+                wfRow.appendChild(schedule);
+
+                card.appendChild(wfRow);
+
+                const salaryRow = document.createElement('div');
+                salaryRow.className = 'vacancy-row';
+
+                const salaryDiv = document.createElement('div');
+                salaryDiv.className = 'vacancy-salary';
+                salaryDiv.textContent = `Зарплата: ${formatSalary(vac.salary, vac.salary_range)}`;
+                salaryRow.appendChild(salaryDiv);
+
+                card.appendChild(salaryRow);
+
+                const desc = document.createElement('div');
+                desc.className = 'vacancy-meta';
+                let snippetText = '';
+                if (vac.snippet) {
+                    const req = vac.snippet.requirement ? vac.snippet.requirement.trim() : '';
+                    const resp = vac.snippet.responsibility ? vac.snippet.responsibility.trim() : '';
+                    snippetText = (req && resp) ? `${req} — ${resp}` : (req || resp || '');
+                }
+                if (!snippetText && vac.description) {
+                    snippetText = (typeof vac.description === 'string') ? vac.description.slice(0, 400) : '';
+                }
+                desc.textContent = snippetText ? snippetText.slice(0, 500) + (snippetText.length > 500 ? '…' : '') : 'Описание отсутствует';
+                card.appendChild(desc);
+
+                const link = document.createElement('a');
+                link.className = 'vacancy-link';
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+                link.href = vac.alternate_url || vac.url || vac.apply_alternate_url || '#';
+                link.textContent = 'Открыть на HH';
+                card.appendChild(link);
+
+                return card;
+            }
+
+            function renderVacancies(data) {
+                vacanciesContainer.innerHTML = '';
+
+                const items = Array.isArray(data?.items) ? data.items : [];
+
+                if (items.length === 0) {
+                    const msg = document.createElement('div');
+                    msg.className = 'vacancy-meta';
+                    msg.textContent = 'Вакансий не найдено';
+                    vacanciesContainer.appendChild(msg);
+                    return;
+                }
+
+                items.forEach(vac => {
+                    const card = createVacancyCard(vac);
+                    vacanciesContainer.appendChild(card);
+                });
+
+            }
+
+            function openModal() {
+                vacanciesModal.style.display = 'block';
+                vacanciesModal.setAttribute('aria-hidden', 'false');
+                vacanciesModal.querySelector('.modal-content').focus?.();
+            }
+
+            function closeModal() {
+                vacanciesModal.style.display = 'none';
+                vacanciesModal.setAttribute('aria-hidden', 'true');
+            }
+
+            if (openResultsBtn) {
+                openResultsBtn.addEventListener('click', function() {
+                    if (!window.lastVacanciesData) {
+                        alert('Данных для отображения нет. Сначала выполните поиск.');
+                        return;
+                    }
+                    renderVacancies(window.lastVacanciesData);
+                    openModal();
+                });
+            }
+
+            modalCloseBtn.addEventListener('click', closeModal);
+            modalCloseFooter.addEventListener('click', closeModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === vacanciesModal) closeModal();
+            });
+
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && vacanciesModal.style.display === 'block') {
+                    closeModal();
+                }
+            });
 
             if (searchBtn) {
                 searchBtn.addEventListener('click', function() {
@@ -600,17 +905,15 @@
                         return resp.json();
                     })
                     .then(data => {
+                        window.lastVacanciesData = data;
+
                         const count = data.count ?? (Array.isArray(data.items) ? data.items.length : 0);
                         document.getElementById('result-count').innerText = String(count);
-
-                        const resultsLink = document.getElementById('results-link');
-                        if (resultsLink) {
-                            resultsLink.href = '/results?' + params.toString();
-                        }
 
                         loading.style.display = 'none';
                         resultBox.style.display = 'block';
                         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
                     })
                     .catch(err => {
                         console.error(err);
