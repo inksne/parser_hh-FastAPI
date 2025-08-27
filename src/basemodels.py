@@ -28,6 +28,7 @@ class AuthGetVacanciesModel(BaseModel):
     currency: Optional[str] = None
     metro: Optional[str] = None
     education: Optional[str] = None
+    only_with_salary: Optional[bool] = False
     no_magic: Optional[bool] = False
     premium: Optional[bool] = False
     responses_count_enabled: Optional[bool] = True
