@@ -137,6 +137,9 @@ def auth_create_query_params(
     if params.premium:
         query_params['premium'] = params.premium
 
+    if params.only_with_salary:
+        query_params['only_with_salary'] = params.only_with_salary
+
     if not params.responses_count_enabled:
         query_params['responses_count_enabled'] = params.responses_count_enabled
 
