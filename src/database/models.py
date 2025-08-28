@@ -30,6 +30,7 @@ class Vacancy(Base):
     schedule: Mapped[str] = mapped_column(nullable=False)
     salary: Mapped[int] = mapped_column(nullable=False)
     education: Mapped[str] = mapped_column(nullable=False)
+    hh_link: Mapped[str] = mapped_column(nullable=False)
     premium: Mapped[bool] = mapped_column(nullable=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
