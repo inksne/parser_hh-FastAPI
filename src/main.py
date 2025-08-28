@@ -11,6 +11,7 @@ from config import configure_logging
 from auth import router as auth_router
 from templates import router as templates_router
 from parse_hh import router as parse_hh_router
+from api import router as api_router
 
 
 
@@ -45,3 +46,4 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(templates_router)
 app.include_router(parse_hh_router)
+app.include_router(api_router)
