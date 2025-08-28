@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 
+
 class GetVacanciesModel(BaseModel):
     page: Optional[int] = 0
     per_page: Optional[int] = 20
@@ -32,3 +33,30 @@ class AuthGetVacanciesModel(BaseModel):
     no_magic: Optional[bool] = False
     premium: Optional[bool] = False
     responses_count_enabled: Optional[bool] = True
+
+
+class AddVacancyRequest(BaseModel):
+    name: str
+    experience: str
+    employment_form: str
+    work_format: str
+    schedule: str
+    salary: int
+    education: str
+    hh_link: str
+    premium: bool
+
+
+class VacancyOut(BaseModel):
+    id: int
+    name: str
+    experience: str
+    employment_form: str
+    work_format: str
+    schedule: str
+    salary: int
+    education: str
+    hh_link: str
+    premium: bool
+
+    model_config = {"from_attributes": True}
