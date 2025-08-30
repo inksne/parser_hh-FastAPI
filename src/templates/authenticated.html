@@ -527,7 +527,6 @@
                             id="vacancy-name" 
                             name="query"
                             class="vacancy-input" 
-                            placeholder="Например: Middle Python Developer"
                         >
                         <button class="filter-btn" id="filter-btn" type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -888,6 +887,9 @@
             const modalCloseFooter = document.getElementById('modal-close-footer');
             const vacanciesContainer = document.getElementById('vacanciesContainer');
 
+            const allVacanciesModal = document.getElementById('allVacanciesModal');
+            const allVacanciesContainer = document.getElementById('allVacanciesContainer');
+
             window.lastVacanciesData = null;
 
             const employmentMap = {
@@ -897,10 +899,62 @@
                 'fly_in_fly_out': 'FLY_IN_FLY_OUT'
             };
 
+            const HUMANIZE_MAPS = {
+                experience: {
+                    noExperience: 'Нет опыта',
+                    between1And3: '1–3 года',
+                    between3And6: '3–6 лет',
+                    moreThan6: 'Более 6 лет'
+                },
+
+                employment_form: {
+                    FULL: 'Полная',
+                    PART: 'Частичная',
+                    PROJECT: 'Проект/подработка',
+                    FLY_IN_FLY_OUT: 'Вахта'
+                },
+
+                employment: {
+                    full: 'Полная',
+                    part: 'Частичная',
+                    project: 'Проект/разовое',
+                    fly_in_fly_out: 'Вахта'
+                },
+
+                work_format: {
+                    ON_SITE: 'На месте работодателя',
+                    REMOTE: 'Удалённая',
+                    HYBRID: 'Гибрид'
+                },
+
+                schedule: {
+                    fullDay: 'Полный день',
+                    shift: 'Сменный график',
+                    flexible: 'Гибкий график',
+                    remote: 'Удалённая работа'
+                },
+
+                education: {
+                    not_required_or_not_specified: 'Не важно / не указано',
+                    special_secondary: 'Среднее специальное',
+                    higher: 'Высшее'
+                },
+                
+                work_schedule_by_days: {
+                    FIVE_ON_TWO_OFF: '5/2',
+                    FOUR_ON_THREE_OFF: '4/3',
+                    FOUR_ON_TWO_OFF: '4/2',
+                    THREE_ON_THREE_OFF: '3/3',
+                    THREE_ON_TWO_OFF: '3/2',
+                    TWO_ON_TWO_OFF: '2/2',
+                    WEEKEND: 'По выходным',
+                    FLEXIBLE: 'Свободный',
+                    OTHER: 'Другое'
+                }
+            };
+
             if (filterBtn && filtersPanel) {
-                filterBtn.addEventListener('click', function() {
-                    filtersPanel.classList.toggle('active');
-                });
+                filterBtn.addEventListener('click', () => filtersPanel.classList.toggle('active'));
             }
 
             if (applyFiltersBtn) {
@@ -947,7 +1001,7 @@
                 if (salary) {
                     const from = salary.from;
                     const to = salary.to;
-                    const cur = salary.currency || '';
+                    const cur = salary.currency || salary.currency === null ? (salary.currency || '') : '';
                     if (from != null && to != null) return `${from}–${to} ${cur}`.trim();
                     if (from != null) return `от ${from} ${cur}`.trim();
                     if (to != null) return `до ${to} ${cur}`.trim();
@@ -963,6 +1017,67 @@
                 }
 
                 return 'Не указана';
+            }
+
+            function prettifyId(id) {
+                if (!id || typeof id !== 'string') return String(id ?? '');
+
+                const betweenMatch = id.match(/between\s*([0-9]+)\s*and\s*([0-9]+)/i) || id.match(/between([0-9]+)and([0-9]+)/i);
+                if (betweenMatch) {
+                    const a = betweenMatch[1], b = betweenMatch[2];
+                    return `${a}–${b} ${a === '1' && b === '1' ? 'год' : 'года'}`;
+                }
+
+                let s = id.replace(/_/g, ' ');
+                s = s.replace(/([a-zа-я])([A-ZА-Я])/g, '$1 $2');
+                s = s.replace(/([0-9]+)and([0-9]+)/i, '$1–$2');
+                s = s.replace(/([A-Za-z])([0-9])/g, '$1 $2');
+                s = s.replace(/([0-9])([A-Za-z])/g, '$1 $2');
+                s = s.replace(/\s+/g, ' ').trim();
+
+                return s.charAt(0).toUpperCase() + s.slice(1);
+            }
+
+            function humanizeField(value, fieldName) {
+                if (value == null) return 'Не указано';
+
+                if (Array.isArray(value)) {
+                    const parts = value.map(v => humanizeField(v, fieldName)).filter(Boolean);
+                    return parts.length ? parts.join(', ') : 'Не указано';
+                }
+
+                if (typeof value === 'object') {
+                    if (value.name && typeof value.name === 'string' && value.name.trim()) {
+                        return value.name;
+                    }
+                    if (value.id && typeof value.id === 'string') {
+                        const id = value.id;
+                        if (HUMANIZE_MAPS[fieldName] && HUMANIZE_MAPS[fieldName][id]) {
+                            return HUMANIZE_MAPS[fieldName][id];
+                        }
+                        return prettifyId(id);
+                    }
+                    if (value.station_name) return value.station_name;
+                    if (value.line_name) return value.line_name;
+                    return 'Не указано';
+                }
+
+                if (typeof value === 'string') {
+                    const id = value;
+                    if (HUMANIZE_MAPS[fieldName] && HUMANIZE_MAPS[fieldName][id]) {
+                        return HUMANIZE_MAPS[fieldName][id];
+                    }
+                    return prettifyId(id);
+                }
+
+                return String(value);
+            }
+
+            function safeGetEducation(vac) {
+                if (!vac) return 'Не указано';
+                if (vac.education && typeof vac.education === 'object' && vac.education.name) return vac.education.name;
+                if (typeof vac.education === 'string' && vac.education.trim()) return vac.education;
+                return 'Не указано';
             }
 
             function createVacancyCard(vac) {
@@ -1067,16 +1182,8 @@
 
                 const educationDiv = document.createElement('div');
                 educationDiv.className = 'vacancy-meta';
-                let eduText = 'Образование: не указано';
-                if (vac.education && typeof vac.education === 'object' && vac.education.name) {
-                    eduText = `Образование: ${vac.education.name}`;
-                } else if (typeof vac.education === 'string' && vac.education.trim()) {
-                    eduText = `Образование: ${vac.education}`;
-                } else if (vac['education_level']) {
-                    eduText = `Образование: ${vac['education_level']}`;
-                }
+                educationDiv.textContent = `Образование: ${safeGetEducation(vac)}`;
                 salaryRow.appendChild(educationDiv);
-                educationDiv.textContent = eduText;
 
                 card.appendChild(salaryRow);
 
@@ -1094,15 +1201,77 @@
                 desc.textContent = snippetText ? snippetText.slice(0, 500) + (snippetText.length > 500 ? '…' : '') : 'Описание отсутствует';
                 card.appendChild(desc);
 
+                const actionsRow = document.createElement('div');
+                actionsRow.className = 'vacancy-row';
+
                 const link = document.createElement('a');
                 link.className = 'vacancy-link';
                 link.setAttribute('target', '_blank');
                 link.setAttribute('rel', 'noopener noreferrer');
                 link.href = vac.alternate_url || vac.url || vac.apply_alternate_url || '#';
                 link.textContent = 'Открыть на HH';
-                card.appendChild(link);
+                actionsRow.appendChild(link);
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'apply-btn';
+                saveBtn.style.marginLeft = '8px';
+                saveBtn.textContent = 'Сохранить вакансию';
+                saveBtn.addEventListener('click', function() {
+                    saveVacancyFromHH(vac, saveBtn);
+                });
+                actionsRow.appendChild(saveBtn);
+
+                card.appendChild(actionsRow);
 
                 return card;
+            }
+
+            async function saveVacancyFromHH(vac, btn) {
+                if (!btn) return;
+                btn.disabled = true;
+                const originalText = btn.textContent;
+                btn.textContent = 'Сохраняем...';
+
+                const payload = {
+                    name: vac.name || '',
+                    experience: vac.experience?.id || vac.experience?.name || '',
+                    employment_form: (vac.employment_form?.id || vac.employment?.id || vac.employment_form?.name || vac.employment?.name || ''),
+                    work_format: (Array.isArray(vac.work_format) && vac.work_format.length > 0) ? (vac.work_format[0].id || vac.work_format[0].name) : '',
+                    schedule: vac.schedule?.id || vac.schedule?.name || '',
+                    salary: (vac.salary && (vac.salary.from != null)) ? Number(vac.salary.from) : 0,
+                    education: (vac.education && vac.education.name) ? vac.education.name : (typeof vac.education === 'string' ? vac.education : ''),
+                    hh_link: vac.alternate_url || vac.url || '',
+                    premium: Boolean(vac.premium || vac.is_adv_vacancy)
+                };
+
+                try {
+                    const res = await fetch('/authenticated/api/add_vacancy', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const text = await res.text().catch(()=>null);
+                        throw new Error(`Сервер вернул ${res.status}${text ? ': ' + text : ''}`);
+                    }
+
+                    btn.textContent = 'Сохранено';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 1500);
+
+                } catch (err) {
+                    console.error('Ошибка сохранения вакансии:', err);
+                    alert('Не удалось сохранить вакансию: ' + (err.message || err));
+                    btn.textContent = originalText;
+                } finally {
+                    btn.disabled = false;
+                }
             }
 
             function renderVacancies(data) {
@@ -1122,18 +1291,19 @@
                     const card = createVacancyCard(vac);
                     vacanciesContainer.appendChild(card);
                 });
-
             }
 
             function openModal() {
                 vacanciesModal.style.display = 'block';
                 vacanciesModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
                 vacanciesModal.querySelector('.modal-content').focus?.();
             }
 
             function closeModal() {
                 vacanciesModal.style.display = 'none';
                 vacanciesModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
             }
 
             if (openResultsBtn) {
@@ -1160,6 +1330,175 @@
                 }
             });
 
+            async function fetchAllVacanciesAndRender() {
+                allVacanciesContainer.innerHTML = '<div class="vacancy-meta">Загрузка...</div>';
+                try {
+                    const res = await fetch('/authenticated/api/vacancies', {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error('Ошибка сети: ' + res.status);
+                    }
+                    const data = await res.json();
+                    renderAllVacancies(data);
+                } catch (err) {
+                    console.error('Не удалось получить все вакансии:', err);
+                    allVacanciesContainer.innerHTML = `<div class="vacancy-meta">Ошибка загрузки: ${err.message || err}</div>`;
+                }
+            }
+
+            function renderAllVacancies(data) {
+                const arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+
+                allVacanciesContainer.innerHTML = '';
+
+                if (!arr || arr.length === 0) {
+                    allVacanciesContainer.innerHTML = '<div class="vacancy-meta">Нет сохранённых вакансий</div>';
+                    return;
+                }
+
+                arr.forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = 'vacancy-card';
+
+                    const topRow = document.createElement('div');
+                    topRow.className = 'vacancy-row';
+
+                    const title = document.createElement('div');
+                    title.className = 'vacancy-title';
+
+                    if (Boolean(v.premium)) {
+                        const badge = document.createElement('span');
+                        badge.className = 'premium-badge';
+                        badge.textContent = 'Премиум';
+                        title.appendChild(badge);
+                    }
+
+                    const titleText = document.createElement('span');
+                    titleText.textContent = v.name || 'Без названия';
+                    title.appendChild(titleText);
+
+                    topRow.appendChild(title);
+                    card.appendChild(topRow);
+
+                    const meta1 = document.createElement('div');
+                    meta1.className = 'vacancy-row';
+
+                    const expDiv = document.createElement('div');
+                    expDiv.className = 'vacancy-meta';
+                    expDiv.textContent = `Опыт: ${humanizeField(v.experience || v.experience?.id || v.experience?.name, 'experience')}`;
+                    meta1.appendChild(expDiv);
+
+                    const empf = document.createElement('div');
+                    empf.className = 'vacancy-meta';
+                    empf.textContent = `Форма занятости: ${humanizeField(v.employment_form || v.employment, 'employment_form')}`;
+                    meta1.appendChild(empf);
+
+                    card.appendChild(meta1);
+
+                    const meta2 = document.createElement('div');
+                    meta2.className = 'vacancy-row';
+
+                    const wf = document.createElement('div');
+                    wf.className = 'vacancy-meta';
+                    wf.textContent = `Формат: ${humanizeField(v.work_format, 'work_format')}`;
+                    meta2.appendChild(wf);
+
+                    const scheduleDiv = document.createElement('div');
+                    scheduleDiv.className = 'vacancy-meta';
+                    scheduleDiv.textContent = `График: ${humanizeField(v.schedule || v.schedule?.id || v.schedule?.name, 'schedule')}`;
+                    meta2.appendChild(scheduleDiv);
+
+                    card.appendChild(meta2);
+
+                    const meta3 = document.createElement('div');
+                    meta3.className = 'vacancy-row';
+
+                    const salaryDiv = document.createElement('div');
+                    salaryDiv.className = 'vacancy-salary';
+                    salaryDiv.textContent = `Зарплата: ${formatSalary(v.salary, v.salary_range)}`;
+                    meta3.appendChild(salaryDiv);
+
+                    const eduDiv = document.createElement('div');
+                    eduDiv.className = 'vacancy-meta';
+                    eduDiv.textContent = `Образование: ${humanizeField(v.education || v.education_level, 'education')}`;
+                    meta3.appendChild(eduDiv);
+
+                    const premDiv = document.createElement('div');
+                    premDiv.className = 'vacancy-meta';
+                    premDiv.textContent = `Премиум: ${v.premium ? 'Да' : 'Нет'}`;
+                    meta3.appendChild(premDiv);
+
+                    card.appendChild(meta3);
+
+                    const bottomRow = document.createElement('div');
+                    bottomRow.className = 'vacancy-row';
+
+                    const openLink = document.createElement('a');
+                    openLink.className = 'vacancy-link';
+                    openLink.href = v.hh_link || v.hh_link || '#';
+                    openLink.target = '_blank';
+                    openLink.rel = 'noopener noreferrer';
+                    openLink.textContent = 'Открыть на HH';
+                    bottomRow.appendChild(openLink);
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'reset-btn';
+                    delBtn.textContent = 'Удалить вакансию';
+                    delBtn.addEventListener('click', function() {
+                        if (!confirm('Удалить вакансию из базы?')) return;
+                        deleteVacancyFromDB(v.id, card);
+                    });
+                    bottomRow.appendChild(delBtn);
+
+                    card.appendChild(bottomRow);
+
+                    allVacanciesContainer.appendChild(card);
+                });
+            }
+
+            async function deleteVacancyFromDB(vacancyId, nodeToRemove) {
+                try {
+                    const res = await fetch(`/authenticated/api/delete_vacancy?vacancy_id=${encodeURIComponent(vacancyId)}`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) {
+                        const text = await res.text().catch(()=>null);
+                        throw new Error(`Сервер вернул ${res.status}${text ? ': ' + text : ''}`);
+                    }
+
+                    if (nodeToRemove && nodeToRemove.parentNode) nodeToRemove.parentNode.removeChild(nodeToRemove);
+                } catch (err) {
+                    console.error('Ошибка удаления вакансии:', err);
+                    alert('Не удалось удалить вакансию: ' + (err.message || err));
+                }
+            }
+
+            window.openAllVacanciesModal = function() {
+                if (!allVacanciesModal) return;
+                allVacanciesModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                fetchAllVacanciesAndRender();
+            };
+
+            window.closeAllVacanciesModal = function() {
+                if (!allVacanciesModal) return;
+                allVacanciesModal.style.display = 'none';
+                document.body.style.overflow = '';
+            };
+
+            window.onclick = function(event) {
+                if (event.target == allVacanciesModal) {
+                    closeAllVacanciesModal();
+                }
+            };
+
             if (searchBtn) {
                 searchBtn.addEventListener('click', function() {
                     const vacancyName = document.getElementById('vacancy-name').value.trim();
@@ -1170,7 +1509,7 @@
                     const employmentSelected = Array.from(document.querySelectorAll('input[name="employment_multi"]:checked')).map(x => x.value);
 
                     const filters = {
-                        query: vacancyName,
+                        text: vacancyName,
                         area: document.getElementById('area')?.value || '',
                         experience: document.getElementById('experience')?.value || '',
                         work_format: document.getElementById('work_format')?.value || '',
@@ -1188,7 +1527,7 @@
                     };
 
                     const params = new URLSearchParams();
-                    if (filters.query) params.append('query', filters.query);
+                    if (filters.text) params.append('text', filters.text);
                     if (filters.area) params.append('area', filters.area);
                     if (filters.experience) params.append('experience', filters.experience);
                     if (filters.work_format) params.append('work_format', filters.work_format);
@@ -1229,6 +1568,7 @@
                         loading.style.display = 'none';
                         resultBox.style.display = 'block';
                         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
                     })
                     .catch(err => {
                         console.error(err);
@@ -1246,12 +1586,5 @@
                 }
             });
         });
-
-        window.onclick = function(event) {
-            const allVacanciesModal = document.getElementById("allVacanciesModal");
-            if (event.target == allVacanciesModal) {
-                closeAllVacanciesModal();
-            }
-        };
     </script>
 {% endblock %}
