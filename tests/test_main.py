@@ -42,7 +42,7 @@ async def test_read_authenticated_page_without_token():
         response = await client.get('/authenticated/')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-
+s
 @pytest.mark.asyncio
 async def test_read_authenticated_page_with_token():
     try:
