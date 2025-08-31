@@ -18,4 +18,4 @@ RUN poetry install --no-root
 
 COPY . .
 
-EXPOSE 10000d
+EXPOSE 10000
