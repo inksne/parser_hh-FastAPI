@@ -4,7 +4,7 @@ from typing import Optional, Any
 
 from .areas_index import AreaResolver
 from .metro_index import MetroResolver
-from basemodels import AuthGetVacanciesModel, GetVacanciesModel
+from ..basemodels import AuthGetVacanciesModel, GetVacanciesModel
 
 
 

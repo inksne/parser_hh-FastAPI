@@ -7,12 +7,12 @@ from sqlalchemy.exc import IntegrityError
 import logging
 from typing import Optional, List
 
-from auth.utils import hash_password
-from auth.validation import validate_email
-from basemodels import VacancyOut
+from ..auth.utils import hash_password
+from ..auth.validation import validate_email
+from ..basemodels import VacancyOut
 from .models import User, Vacancy
-from exceptions import bad_email_exc, server_exc
-from config import configure_logging
+from ..exceptions import bad_email_exc, server_exc
+from ..config import configure_logging
 
 
 

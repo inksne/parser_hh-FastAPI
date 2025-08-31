@@ -15,7 +15,7 @@ PREFIXES_RE = re.compile(
     r'^\s*(г\.|г |город |пос\.|пос |пгт |деревня |мкр |р-н |р\.н\.)\s*', flags=re.IGNORECASE
 )
 
-NON_ALNUM_RE = re.compile(r'[^0-9\w\sа-яё\-]', flags=re.IGNORECASE)  # сохранение кириллицф, цифр, дефиса
+NON_ALNUM_RE = re.compile(r'[^0-9\w\sа-яё\-]', flags=re.IGNORECASE)  # сохранение кириллицы, цифр, дефиса
 
 
 

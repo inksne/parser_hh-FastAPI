@@ -5,7 +5,7 @@ from pathlib import Path
 
 import os
 import logging
-from typing import Final
+from typing import Final, ClassVar
 
 
 load_dotenv()
@@ -16,19 +16,17 @@ POSTGRES_PASSWORD: Final[str] = os.environ.get("POSTGRES_PASSWORD", "inksne")
 POSTGRES_DB: Final[str] = os.environ.get("POSTGRES_DB", "inksne")
 POSTGRES_HOST: Final[str] = os.environ.get("POSTGRES_HOST", "postgres")
 
-CLIENT_ID: Final[str] = os.environ.get("CLIENT_ID", "null")
-CLIENT_SECRET: Final[str] = os.environ.get("CLIENT_SECRET", "null")
-
 APP_NAME: Final[str] = os.environ.get("APP_NAME", "null")
 APP_EMAIL: Final[str] = os.environ.get("APP_EMAIL", "null")
 
 ACCESS_TOKEN: Final[str] = os.environ.get("ACCESS_TOKEN", "null")
+TEST_ACCESS_TOKEN: Final[str] = os.environ.get("TEST_ACCESS_TOKEN", "null")
 
 
 class AuthJWT(BaseModel):
-    private_key_path: Path = Path("certs") / "jwt-private.pem"
-    public_key_path: Path = Path("certs") / "jwt-public.pem"
-    algorithm: Final[str] = "RS256"
+    private_key_path: Path = Path(__file__).resolve().parent / "certs" / "jwt-private.pem"
+    public_key_path: Path = Path(__file__).resolve().parent / "certs" / "jwt-public.pem"
+    algorithm: ClassVar[str] = "RS256"
     access_token_expire_minutes: int = 5
     refresh_token_expire_days: int = 30
 

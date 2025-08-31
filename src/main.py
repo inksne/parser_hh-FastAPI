@@ -3,15 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 import logging
+from pathlib import Path
 
-from database.database import create_db_and_tables
-from parse_hh import load_area_resolver_from_file, load_metro_resolver_from_file
-from config import configure_logging
+from .database.database import create_db_and_tables
+from .parse_hh import load_area_resolver_from_file, load_metro_resolver_from_file
+from .config import configure_logging
 
-from auth import router as auth_router
-from templates import router as templates_router
-from parse_hh import router as parse_hh_router
-from api import router as api_router
+from .auth import router as auth_router
+from .templates import router as templates_router
+from .parse_hh import router as parse_hh_router
+from .api import router as api_router
 
 
 
@@ -21,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.area_resolver = load_area_resolver_from_file("parse_hh/areas.json")
+    app.state.area_resolver = load_area_resolver_from_file(str(Path(__file__).resolve().parent / "parse_hh" / "areas.json"))
     logger.info('преобразователь areas в id загружен')
     
-    app.state.metro_resolver = load_metro_resolver_from_file("parse_hh/metro.json")
+    app.state.metro_resolver = load_metro_resolver_from_file(str(Path(__file__).resolve().parent / "parse_hh" / "metro.json"))
     logger.info('преобразователь metro в id загружен')
 
     await create_db_and_tables()

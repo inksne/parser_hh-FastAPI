@@ -7,11 +7,11 @@ from .helpers import create_access_token, create_refresh_token
 from .validation import get_current_auth_user_for_refresh, validate_auth_user_db
 from .schemas import UserSchema
 
-from database.database import get_async_session
-from database.managers import psql_manager
+from ..database.database import get_async_session
+from ..database.managers import psql_manager
 from sqlalchemy.ext.asyncio import AsyncSession
-from exceptions import conflict_name, bad_email_exc, user_exists_exc, server_exc
-from config import configure_logging
+from ..exceptions import conflict_name, bad_email_exc, user_exists_exc, server_exc
+from ..config import configure_logging
 
 import logging
 from pydantic import BaseModel

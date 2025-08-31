@@ -2,7 +2,7 @@ import jwt
 import bcrypt
 import uuid
 
-from config import settings
+from ..config import settings
 
 from datetime import timedelta, datetime, timezone
 from typing import Any

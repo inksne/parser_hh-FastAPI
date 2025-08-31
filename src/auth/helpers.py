@@ -1,6 +1,6 @@
 from .schemas import UserSchema
 from .utils import encode_jwt
-from config import settings
+from ..config import settings
 
 from datetime import timedelta
 from typing import Any

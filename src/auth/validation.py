@@ -11,10 +11,10 @@ from typing import Any, Callable, Coroutine
 from .helpers import TOKEN_TYPE_FIELD, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from .utils import decode_jwt, validate_password
 from .schemas import UserSchema
-from database.database import get_async_session
-from database.models import User
-from config import configure_logging
-from exceptions import (
+from ..database.database import get_async_session
+from ..database.models import User
+from ..config import configure_logging
+from ..exceptions import (
     bad_token_exc,
     not_found_access_exc,
     not_found_refresh_exc,

@@ -3,14 +3,14 @@ from fastapi import APIRouter, Depends
 import logging
 from typing import List
 
-from database.managers import psql_manager
-from database.models import User
-from database.database import get_async_session
+from .database.managers import psql_manager
+from .database.models import User
+from .database.database import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth import get_current_auth_user
-from basemodels import AddVacancyRequest, VacancyOut
-from config import configure_logging
+from .auth import get_current_auth_user
+from .basemodels import AddVacancyRequest, VacancyOut
+from .config import configure_logging
 
 
 

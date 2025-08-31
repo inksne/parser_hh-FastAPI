@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 from typing import Optional, Any
 
-from exceptions import bad_email_exc
+from ..exceptions import bad_email_exc
 
 
 class UserSchema(BaseModel):

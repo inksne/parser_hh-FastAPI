@@ -4,15 +4,12 @@ from fastapi.responses import HTMLResponse
 from starlette.templating import _TemplateResponse
 
 import logging
-from typing import Any
+from pathlib import Path
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from database.database import get_async_session
-from database.models import User
-from database.managers import psql_manager
+from ..database.models import User
 
-from auth import get_current_auth_user
-from config import configure_logging
+from ..auth import get_current_auth_user
+from ..config import configure_logging
 
 
 configure_logging()
@@ -22,7 +19,7 @@ log = logging.getLogger(__name__)
 router = APIRouter(tags=['Templates'])
 
 
-templates = Jinja2Templates(directory='templates')
+templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent))
 
 
 

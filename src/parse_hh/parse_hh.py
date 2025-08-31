@@ -6,11 +6,11 @@ from typing import Any
 
 from .helpers import create_query_params, auth_create_query_params
 from .dependencies import get_area_resolver, get_metro_resolver
-from auth.validation import get_current_auth_user
-from database.models import User
-from config import configure_logging, APP_NAME, APP_EMAIL, ACCESS_TOKEN
-from basemodels import GetVacanciesModel, AuthGetVacanciesModel
-from exceptions import server_exc, api_hh_exc
+from ..auth.validation import get_current_auth_user
+from ..database.models import User
+from ..config import configure_logging, APP_NAME, APP_EMAIL, ACCESS_TOKEN
+from ..basemodels import GetVacanciesModel, AuthGetVacanciesModel
+from ..exceptions import server_exc, api_hh_exc
 
 
 
